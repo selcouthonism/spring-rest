@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import org.springapi.shopping.enums.Status;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "CUSTOMER_ORDER")
+@EntityListeners(AuditingEntityListener.class)
 public class Order {
 
     @Id
