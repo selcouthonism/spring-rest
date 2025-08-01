@@ -1,5 +1,7 @@
-package org.springapi.shopping.exception;
+package org.springapi.shopping.exception.handler;
 
+import org.springapi.shopping.exception.specific.OrderNotFoundException;
+import org.springapi.shopping.exception.specific.OrderStatusException;
 import org.springapi.shopping.model.Order;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mediatype.problem.Problem;
@@ -33,6 +35,7 @@ public class OrderExceptionHandler {
     }
      */
 
+    /*
     @ExceptionHandler(OrderStatusException.class)
     public ResponseEntity<Problem> handleOrderStatus(OrderStatusException ex) {
         Order order = ex.getOrder();
@@ -47,5 +50,6 @@ public class OrderExceptionHandler {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE) //
                 .body(problem);
     }
+     */
 
 }

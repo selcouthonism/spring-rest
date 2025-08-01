@@ -1,5 +1,6 @@
 package org.springapi.shopping.controller;
 
+import jakarta.validation.Valid;
 import org.springapi.shopping.assembler.OrderModelAssembler;
 import org.springapi.shopping.dto.OrderDto;
 import org.springapi.shopping.mapper.OrderMapper;
@@ -55,7 +56,7 @@ public class OrderController {
     }
 
     @PostMapping
-    ResponseEntity<EntityModel<OrderDto>> newOrder(@RequestBody OrderDto orderDto) {
+    ResponseEntity<EntityModel<OrderDto>> newOrder(@Valid @RequestBody OrderDto orderDto) {
         Order savedOrder = service.createOrder(OrderMapper.toEntity(orderDto));
 
         return ResponseEntity //

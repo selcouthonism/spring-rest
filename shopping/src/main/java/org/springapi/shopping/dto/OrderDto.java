@@ -1,5 +1,8 @@
 package org.springapi.shopping.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springapi.shopping.enums.Status;
 
 import java.time.Instant;
@@ -7,10 +10,19 @@ import java.time.Instant;
 public class OrderDto {
 
     private Long id;
+
+    @NotBlank(message = "Product name must not be blank")
     private String product;
+
+    @Min(value = 1, message = "Quantity must be at least 1")
     private int quantity;
+
     private Status status;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "UTC")
     private Instant createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "UTC")
     private Instant updatedAt;
 
     public OrderDto() {}

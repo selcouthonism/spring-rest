@@ -1,8 +1,8 @@
 package org.springapi.shopping.service;
 
 import org.springapi.shopping.enums.Status;
-import org.springapi.shopping.exception.OrderNotFoundException;
-import org.springapi.shopping.exception.OrderStatusException;
+import org.springapi.shopping.exception.specific.OrderNotFoundException;
+import org.springapi.shopping.exception.specific.OrderStatusException;
 import org.springapi.shopping.model.Order;
 import org.springapi.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Service;
