@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
                 .body(problem);
     }
 
+    //fallback
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Problem> handleUnhandledExceptions(Exception ex) {
         Problem problem = Problem.create()
