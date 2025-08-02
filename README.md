@@ -1,16 +1,18 @@
 # spring-rest
-This project contains essential components of spring.
-H2 in memory database used.
 
-Rest Controller,
-Service,
-DTO (Data Transfer object),
-Repository,
-Model,
-Assembler,
-Exception,
-Validation Check (Jakarta Bean Validation),
-Unit test
+Overview
+This project showcases the fundamental building blocks of a Spring-based application. It is designed to be a clean and modular example using an H2 in-memory database for lightweight testing and development.
+Features
+
+- **RESTful API** – Built with Spring's @RestController to expose endpoints.
+- **Service Layer** – Encapsulates business logic for clean separation of concerns.
+- **DTOs (Data Transfer Objects)** – Used for structured communication between the API and internal layers.
+- **Repository Layer** – Utilizes Spring Data JPA to interact with the database.
+- **Model Layer** – Defines domain entities representing the application's core data structures.
+- **Assembler** – Converts between domain models and DTOs for cleaner API design.
+- **Exception Handling** – Implements centralized exception management with custom error responses.
+- **Validation** – Ensures data integrity using Jakarta Bean Validation (@Valid, @NotNull, etc.).
+- **Unit Tests** – Includes basic tests to verify the correctness of core components.
 
 
 ## DTO:
