@@ -1,6 +1,6 @@
 # spring-rest
 
-Overview
+## Overview
 This project showcases the fundamental building blocks of a Spring-based application. It is designed to be a clean and modular example using an H2 in-memory database for lightweight testing and development.
 Features
 
