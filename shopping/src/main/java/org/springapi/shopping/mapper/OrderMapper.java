@@ -18,12 +18,13 @@ public class OrderMapper {
 
     public static Order toEntity(OrderDto dto) {
         Order order = new Order();
-        order.setId(dto.getId());
-        order.setProduct(dto.getProduct());
-        order.setQuantity(dto.getQuantity());
-        order.setStatus(dto.getStatus());
+        order.setId(dto.id());
+        order.setProduct(dto.product());
+        order.setQuantity(dto.quantity());
+        order.setStatus(dto.status());
         // createdAt/updatedAt should not be set from client input
         return order;
     }
 
 }
+

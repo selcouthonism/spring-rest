@@ -29,25 +29,21 @@ public class OrderController {
         this.assembler = assembler;
     }
 
+    /**
+     * Fetch a single order by ID.
+     */
     @GetMapping("/{id}")
     public EntityModel<OrderDto> getOrderById(@PathVariable Long id) {
         Order order = service.getOrderById(id);
         return assembler.toModel(order);
     }
 
+    /**
+     * Fetch all orders.
+     */
     @GetMapping
     public CollectionModel<EntityModel<OrderDto>> getAllOrders() {
-
-        List<Order> orders = service.getAllOrders();
-
-        /*
-        if (orders.isEmpty()) {
-            return CollectionModel.of(List.of(),
-                    linkTo(methodOn(OrderController.class).getAllOrders()).withSelfRel());
-        }
-         */
-
-        List<EntityModel<OrderDto>> models = orders.stream()
+        List<EntityModel<OrderDto>> models = service.getAllOrders().stream()
                 .map(assembler::toModel)
                 .toList();
 
@@ -55,15 +51,21 @@ public class OrderController {
                 linkTo(methodOn(OrderController.class).getAllOrders()).withSelfRel());
     }
 
+    /**
+     * Create a new order.
+     */
     @PostMapping
     ResponseEntity<EntityModel<OrderDto>> newOrder(@Valid @RequestBody OrderDto orderDto) {
         Order savedOrder = service.createOrder(OrderMapper.toEntity(orderDto));
 
-        return ResponseEntity //
+        return ResponseEntity
                 .created(linkTo(methodOn(OrderController.class).getOrderById(savedOrder.getId())).toUri()) //
                 .body(assembler.toModel(savedOrder));
     }
 
+    /**
+     * Cancel an existing order.
+     */
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<EntityModel<OrderDto>> cancel(@PathVariable Long id) {
         Order order = service.cancelOrder(id);
@@ -71,10 +73,12 @@ public class OrderController {
         return ResponseEntity.ok(assembler.toModel(order));
     }
 
+    /**
+     * Complete an existing order.
+     */
     @PutMapping("/{id}/complete")
     public ResponseEntity<EntityModel<OrderDto>> complete(@PathVariable Long id) {
-
-        Order order = service.complete(id);
+        Order order = service.completeOrder(id);
 
         return ResponseEntity.ok(assembler.toModel(order));
     }

@@ -43,12 +43,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Reactive Web - WebClient -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
         <!-- HATEOAS -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

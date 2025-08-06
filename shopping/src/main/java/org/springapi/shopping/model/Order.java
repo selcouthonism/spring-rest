@@ -22,6 +22,7 @@ public class Order {
     private int quantity;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status = Status.IN_PROGRESS;
 
     @CreatedDate
@@ -39,6 +40,14 @@ public class Order {
         this.product = product;
         this.quantity = quantity;
         this.status = Status.IN_PROGRESS;
+    }
+
+    // Optional convenience constructor (e.g., for tests)
+    public Order(Long id, String product, int quantity, Status status) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+        this.status = status != null ? status : Status.IN_PROGRESS;
     }
 
     // Getters and Setters
