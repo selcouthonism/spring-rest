@@ -15,6 +15,7 @@ Features
 - **Unit Tests** – Includes basic tests to verify the correctness of core components.
 
 
+
 ## DTO:
 **Record** is preferred in newer Spring Boot apps for simplicity and immutability. It can be used on Java 16+ and using Spring Boot 3.x.
 
@@ -56,11 +57,22 @@ MapStruct is a fast, compile-time mapper that generates efficient code to map be
 *exception.handler:* For your **@RestControllerAdvice** classes that handle and format exceptions globally.
 
 ## Unit Test:
+
+**OrderControllerTest**: 
 Uses Mockito annotations to mock dependencies and inject into the controller.
 
+Tests each controller method:
+- Mocks service calls and assembler transformations.
+- Asserts the returned values and status codes.
+- Verifies interactions with mocks.
+
+***Mockito*** is the most popular mocking framework for Java. It allows you to fake the behavior of classes (usually dependencies) in your unit tests so that you can test your code in isolation.
+
 **OrderControllerIntegrationTest**: 
-- Uses real components: OrderController, OrderService, OrderRepository, OrderModelAssembler, etc.
+It uses real components: 
+- OrderController, OrderService, OrderRepository, OrderModelAssembler, etc.
 - Uses real H2 DB in memory (Spring Boot auto-configures it)
 - Validates full flow including database persistence
 - Calls real endpoints like /orders/{id}, /orders, etc.
 
+***@SpringBootTest*** is a powerful annotation in Spring Boot used to write integration tests. It tells Spring to start the full application context, just like it would in production — including all beans, configurations, repositories, controllers, and more.

@@ -10,7 +10,6 @@ import org.springapi.shopping.dto.OrderDto;
 import org.springapi.shopping.enums.Status;
 import org.springapi.shopping.model.Order;
 import org.springapi.shopping.service.OrderService;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 

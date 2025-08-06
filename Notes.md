@@ -16,6 +16,25 @@ The annotation combo **@Bean** with **@Profile("!test")** in Spring Boot is used
 
 **@Profile("test")**: Only for testing
 
+**@RequiredArgsConstructor**: is a Lombok annotation used in Java to automatically generate a constructor for a class with all the final fields (and any fields marked @NonNull). It reduces boilerplate code — you don’t need to write constructors manually and works perfectly with Spring’s constructor injection (e.g., in @Service, @Component, or @Controller) (recommended over field injection).
+```
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+
+    // other methods...
+}
+```
+Lombok generates this constructor for you at compile time:
+```
+public OrderService(OrderRepository orderRepository) {
+    this.orderRepository = orderRepository;
+}
+```
+
+
 ## REST:
 ### @RestController: 
 **@RestController** marks the class as a controller where every method returns a domain object (data) instead of a view. It is shorthand for including both **@Controller** and **@ResponseBody**.
@@ -278,6 +297,13 @@ public AuditorAware<String> auditorProvider() {
 
 ### @Transactional: 
 To ensure data consistency and rollback on failure, annotate service methods with @Transactional.
+
+The **@Transactional(readOnly = true)** annotation tells Spring that the method only performs read operations (no changes to the database).
+
+Spring can apply optimizations, such as:
+- Skipping dirty checks (no need to track changes).
+- Using read-only database connections (if supported).
+- Reducing lock contention (depending on the DB and transaction isolation level).
 
 ## Unit Test:
 ### @SpringBootTest: 

@@ -1,16 +1,17 @@
 package org.springapi.shopping.service;
 
-import jakarta.transaction.Transactional;
 import org.springapi.shopping.enums.Status;
 import org.springapi.shopping.exception.specific.OrderNotFoundException;
 import org.springapi.shopping.exception.specific.OrderStatusException;
 import org.springapi.shopping.model.Order;
 import org.springapi.shopping.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+//@RequiredArgsConstructor // automatically generate a constructor for a class with all the final fields
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -22,7 +23,7 @@ public class OrderService {
     /**
      * Fetch all orders from the database.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
@@ -30,7 +31,7 @@ public class OrderService {
     /**
      * Retrieve a specific order by ID.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public Order getOrderById(Long id) {
         return getOrderOrThrow(id);
     }
