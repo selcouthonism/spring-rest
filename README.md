@@ -14,6 +14,26 @@ Features
 - **Validation** – Ensures data integrity using Jakarta Bean Validation (@Valid, @NotNull, etc.).
 - **Unit Tests** – Includes basic tests to verify the correctness of core components.
 
+## Run
+Spring Initializr creates a Maven wrapper, so you can run the following command:
+```
+$ ./mvnw clean spring-boot:run
+```
+
+Alternatively, you can use your installed Maven version, as follows:
+```
+$ mvn clean spring-boot:run
+```
+
+When the app starts, you can immediately interrogate it, as follows:
+```
+$ curl -v localhost:8080/orders | json_pp
+```
+
+Create a new order:
+```
+$ curl -v -X POST localhost:8080/orders -H 'Content-type:application/json' -d '{"product": "iPad", "quantity": "2"}' | json_pp
+```
 
 
 ## DTO:
