@@ -9,6 +9,7 @@ import org.springapi.shopping.service.OrderService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -81,6 +82,17 @@ public class OrderController {
         Order order = service.completeOrder(id);
 
         return ResponseEntity.ok(assembler.toModel(order));
+    }
+
+    /**
+     * Check authentication
+     */
+    @PreAuthorize("hasRole('ADMIN')")  // Only allow users with ROLE_ADMIN
+    @GetMapping("/auth")
+    public ResponseEntity<String> auth() {
+        String greetings = "Hello ADMIN!";
+
+        return ResponseEntity.ok(greetings);
     }
 
 }

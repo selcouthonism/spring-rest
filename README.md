@@ -12,6 +12,7 @@ Features
 - **Assembler** – Converts between domain models and DTOs for cleaner API design.
 - **Exception Handling** – Implements centralized exception management with custom error responses.
 - **Validation** – Ensures data integrity using Jakarta Bean Validation (@Valid, @NotNull, etc.).
+- **Security** – Protects sensitive endpoints using Spring Security with role-based access control. Admin-level operations require authentication, while public endpoints are accessible anonymously.
 - **Unit Tests** – Includes basic tests to verify the correctness of core components.
 
 ## Run
@@ -27,12 +28,17 @@ $ mvn clean spring-boot:run
 
 When the app starts, you can immediately interrogate it, as follows:
 ```
-$ curl -v localhost:8080/orders | json_pp
+$ curl -v localhost:8080/orders/1 | json_pp
 ```
 
 Create a new order:
 ```
 $ curl -v -X POST localhost:8080/orders -H 'Content-type:application/json' -d '{"product": "iPad", "quantity": "2"}' | json_pp
+```
+
+Check admin access:
+```
+$ curl -v -u admin:adminpassword localhost:8080/orders/auth
 ```
 
 

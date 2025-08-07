@@ -211,6 +211,21 @@ public class Product {
 > @JsonIgnoreProperties: Ignore one or more fields globally (Class-level)
 
 ## Database Related:
+
+### @Version: 
+**@Version** is used in JPA to enable optimistic locking. On conflict (e.g., stale data during concurrent update), an OptimisticLockException is thrown. Catch and retry or inform the user.
+
+### @Lock(LockModeType.PESSIMISTIC_WRITE):
+This locks the row in DB until the transaction completes.
+```
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT o FROM Order o WHERE o.id = :id")
+Seat findByIdForUpdate(@Param("id") Long id);
+```
+
+### @Transactional:
+To ensure data consistency and rollback on failure, annotate service methods with **@Transactional**. Use **@Transactional(readOnly = true)** for pure reads, and plain **@Transactional** for write operations.
+
 ### @EnableJpaAuditing: 
 **@EnableJpaAuditing** is a Spring Boot annotation that enables automatic population of auditing fields (like createdAt, updatedAt, createdBy, updatedBy) in your JPA entities.
 
@@ -318,6 +333,30 @@ Spring can apply optimizations, such as:
 - Faster to run — ideal for unit tests targeting the web layer only.
 
 ### @AutoWire:
+
+## Security:
+### @EnableMethodSecurity:
+
+**@PreAuthorize("hasRole('ADMIN')")**:  Role or permission check.
+- When: Before the method execution.
+- Purpose: Checks if the caller has the required permissions before the method runs.
+- Use case: Prevent unauthorized access early.
+
+If the expression in @PreAuthorize evaluates to false, the method won't execute, and an access denied error is thrown immediately.
+
+**@PostAuthorize("hasRole('ADMIN')")**: Result-based authorization (ownership)
+- When: After the method execution.
+- Purpose: Checks the authorization based on the returned object or method outcome.
+- Use case: When authorization depends on the result of the method call (e.g., owner-based access).
+
+If the expression is false, the method result is discarded, and an access denied error is thrown.
+```
+@PostAuthorize("returnObject.user == authentication.name")
+public Order getOrder(Long id) {
+    // The method runs, then this checks if the returned order's user matches the authenticated user
+    return orderRepository.findById(id);
+}
+```
 
 # Additional Notes:
 ## WebClient:
