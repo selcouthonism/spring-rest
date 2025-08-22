@@ -11,6 +11,8 @@ import java.time.Instant;
 @Entity
 @Table(name = "CUSTOMER_ORDER")
 @EntityListeners(AuditingEntityListener.class)
+//@Getter @Setter
+//@NoArgsConstructor @AllArgsConstructor @Builder
 public class Order {
 
     @Id
