@@ -89,9 +89,9 @@ public class AdminOrderController {
     }
 
     /**
-     * Fetch a single order by ID.
+     * Update orderStatus PENDING -> MATCHED
      */
-    @GetMapping("/{id}/match")
+    @PutMapping("/{id}/match")
     public ResponseEntity<EntityModel<OrderDTO>> matchOrder(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails principle) {

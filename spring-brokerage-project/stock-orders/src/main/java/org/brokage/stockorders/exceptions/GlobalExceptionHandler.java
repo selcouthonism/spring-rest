@@ -1,8 +1,5 @@
 package org.brokage.stockorders.exceptions;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
-import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +11,11 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +37,7 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<Problem> buildProblem(String title, String detail, HttpStatus status, Exception exception) {
-        log.warn("Exception caught in GlobalExceptionHandler", exception);
+        log.warn("Exception caught in GlobalExceptionHandler", exception.getMessage());
 
         Problem problem = Problem.create()
                 .withTitle(title)

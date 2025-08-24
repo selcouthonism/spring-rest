@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.dto.CreateOrderDTO;
 import org.brokage.stockorders.dto.OrderDTO;
+import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.OrderMapper;
 import org.brokage.stockorders.repository.OrderSpecifications;
 import org.brokage.stockorders.service.OrderService;
@@ -192,7 +193,7 @@ public class OrderServiceImpl implements OrderService {
     private void validateCustomerAccess(Order order, Long customerId) {
         // Security Check: Ensure the customer owns this order
         if (!order.getCustomer().getId().equals(customerId)) {
-            throw new OperationNotPermittedException("Order customer not permitted");
+            throw new UnallowedAccessException("Order customer not permitted");
         }
     }
 

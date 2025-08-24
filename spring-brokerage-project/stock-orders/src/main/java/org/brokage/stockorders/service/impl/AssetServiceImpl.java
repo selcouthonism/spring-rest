@@ -2,8 +2,8 @@ package org.brokage.stockorders.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.dto.AssetDTO;
-import org.brokage.stockorders.exceptions.OperationNotPermittedException;
 import org.brokage.stockorders.exceptions.ResourceNotFoundException;
+import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.AssetMapper;
 import org.brokage.stockorders.model.entity.Asset;
 import org.brokage.stockorders.repository.AssetRepository;
@@ -37,7 +37,7 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = findAssetById(assetId);
 
         if (!asset.getCustomer().getId().equals(customerId)) {
-            throw new OperationNotPermittedException("Asset customer not permitted");
+            throw new UnallowedAccessException("Asset customer not permitted");
         }
 
         return assetMapper.toDto(asset);
