@@ -17,7 +17,7 @@
 ### Actors
 **Admin (Employees):** can create/list/cancel/match orders for any customer; manage customers & assets.
 
-**Customer:** can only access/manipulate their own data after login.
+**Customer:** can only access/manipulate their own data.
 
 **Order lifecycle:** PENDING → MATCHED | CANCELED
 - Creation always starts as PENDING.
@@ -45,8 +45,8 @@ Entity: Asset
 - id: (BIGINT, Primary Key, Auto-Generated)
 - customerId: (Foreign Key to customers.id)
 - assetName: (VARCHAR) - e.g., "AAPL", "GOOGL"
-- size: (decimal) – Total number of shares owned.
-- usableSize: (decimal) – available shares not reserved by open SELL orders (Shares not tied up in pending SELL orders (size - size_in_pending_sell_orders).)
+- size: (DECIMAL) – Total number of shares owned.
+- usableSize: (DECIMAL) – available shares not reserved by open SELL orders (Shares not tied up in pending SELL orders (size - size_in_pending_sell_orders).)
 
 - version (optimistic lock)
 - Constraint: Unique constraint on (customerId, assetName)
@@ -59,12 +59,12 @@ Entity: Order
 - id: (BIGINT, Primary Key, Auto-Generated)
 - customerId: (UUID, Foreign Key to Customer.id)
 - assetName: (VARCHAR)
-- orderSide: [BUY | SELL]
-- size: (bigint > 0) - Number of shares in the order.
-- price: (decimal(18,6) > 0) - Price per share for the order.
-- status: (PENDING | MATCHED | CANCELED)
-- createDate: (timestamptz)
-- updateDate: (timestamptz, nullable)
+- orderSide: (ENUM) - Values: BUY, SELL
+- size: (BIGINT > 0) - Number of shares in the order.
+- price: (DECIMAL(18,6) > 0) - Price per share for the order.
+- status: (ENUM) - Values: PENDING, MATCHED, CANCELED
+- createDate: (TIMESTAMP)
+- updateDate: (TIMESTAMP, nullable)
 
 ```
 // Future Considerations:
@@ -73,20 +73,15 @@ Entity: Order
 - Indexes: (customerId, createDate desc), (customerId, status), (assetName, status)
 ```
 
-#### UserCredentials Entity:
-- id: (BIGINT, Primary Key, Auto-Generated)
-- createdAt: (timestampt)
-- username: (VARCHAR, unique)
-- password: (VARCHAR, hashed)
-- roles: [ADMIN | CUSTOMER]
-- customerId: (FK -> Customer.id)
-
 ## 4. RESTful API Endpoints
 All endpoints will be versioned under /api/v1/.
 
 ### a. Authentication Endpoints
 
 #### Login
+Basic authentication with username and password.
+
+#### //TODO: Future Implementation:
 Endpoint: POST /api/v1/auth/login
 
 Description: Authenticates a user (customer or admin) and returns a JWT.
@@ -98,20 +93,15 @@ Response Body: LoginResponseDTO { jwtToken, username, role }
 Authorization: Public.
 
 ### b. Customer-Facing Endpoints
+These endpoints are for logged-in customers (ROLE_CUSTOMER). The customerId is always inferred from the JWT token, not passed as a parameter.
 
 #### Order Creation
 
 Endpoint: POST /api/v1/orders
 
-Description: Creates a new order with PENDING status.
+Description: Creates a new stock order with PENDING status for the authenticated customer.
 
-**Authorization:**
-
-- Admins: Must have ROLE_ADMIN. Can create an order for any customerId in the request body.
-
-- Customers: Must have ROLE_CUSTOMER. The customerId in the request body must match the customerId associated with their username in the *UserCredentials* table.
-
-Request Body: application/json
+Request Body: CreateOrderDTO
 
 - customerId: (string, required) The unique ID of the customer.
 - assetName: (string, required) The name of the stock.
@@ -119,41 +109,88 @@ Request Body: application/json
 - size: (integer, required, > 0) The number of shares.
 - price: (number, required, > 0) The price per share.
 
-Response: 201 Created with the new order ID.
+Response Body: OrderDTO
 
-**Error Responses:**
-- 400 Bad Request: Invalid input (e.g., missing fields, negative size/price).
-- 401 unauthenticated.
-- 403 unauthorized (wrong customer).
-- 404 Not Found: Customer not found (pre-check required).
-- 500 Internal Server Error: Server-side issue.
+status Codes: 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden.
 
 #### List Orders
 
 Endpoint: GET /api/v1/orders
 
-Description: Lists orders based on query parameters.
+Description: Retrieves a list of all orders for the authenticated customer.
 
-**Query Parameters:**
+Query Params: ?customerId=1&from=2025-01-01T00:00:44Z&to=2025-08-30T13:51:51Z&orderStatus=CANCELED (optional filtering).
 
-- customerId: (string, optional) Filters orders by customer ID.
-- dateRange: (timestamp) Filters orders by dateRange.
-- status: (string, optional, enum: "PENDING", "MATCHED", "CANCELED") Filters orders by status.
+Response Body: List<OrderDTO>
 
-**Response: 200 OK**
-
-- list: (array of objects) A list of order objects.
-    - id: (string) Order ID.
-    - customerId: (string) Customer ID.
-    - assetName: (string) Asset name.
-    - orderSide: (string) "BUY" or "SELL".
-    - size: (integer) Number of shares.
-    - price: (number) Price per share.
-    - status: (string) "PENDING", "MATCHED", or "CANCELED".
-    - createDate: (string) Timestamp of creation.
-
+Status Codes: 200 OK, 401 Unauthorized.
 
 #### Delete Order
+Endpoint: DELETE /api/v1/orders/{orderId}
 
+Description: Cancels a PENDING order belonging to the authenticated customer.
+
+Response Body: 204 No Content or OrderDTO of the canceled order.
+
+Status Codes: 204 No Content, 401 Unauthorized, 403 Forbidden (if order doesn't belong to user), 404 Not Found, 409 Conflict (if order is not in PENDING state).
+
+#### Get My Asset
+
+Endpoint: GET /api/v1/assets
+
+Description: Retrieves the asset for the authenticated customer.
+
+Response Body: List<AssetDTO>
+
+Status Codes: 200 OK, 401 Unauthorized.
+
+### c. Admin-Facing Endpoints (for Employees)
+These endpoints require ROLE_ADMIN and allow employees to manage any customer's data.
+
+#### Create Order for a Customer
+Endpoint: POST /api/v1/admin/orders
+
+Description: Creates a new stock order for a specific customer.
+
+Request Body: CreateOrderDTO { customerId, assetName, orderSide, size, price }
+
+Response Body: OrderDTO
+
+Status Codes: 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden.
+
+#### List Orders for a Specific Customer
+
+Endpoint: GET /api/v1/admin/orders
+
+Description: Retrieves all orders.
+
+Query Params: ?customerId=1&from=2025-01-01T00:00:44Z&to=2025-08-30T13:51:51Z&orderStatus=CANCELED (optional filtering).
+
+Response Body: List<OrderDTO>
+
+Status Codes: 200 OK, 401 Unauthorized.
+
+#### Cancel Any Order
+
+Endpoint: DELETE /api/v1/admin/orders/{orderId}
+
+Description: Cancels any PENDING order in the system.
+
+Response Body: 204 No Content
+
+Status Codes: 204 No Content, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict.
+
+#### Match Any Order
+
+Endpoint: GET /api/v1/admin/orders/{orderId}/match
+
+Description: Matches any PENDING order in the system.
+
+Response Body: OrderDTO
+
+Status Codes: Status Codes: 200 OK, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict.
 
 ## 5. Authentication & Authorization with JWTs
+> Note:
+- Security: JWT will be implemented. 
+- UserCredentials must be seperated from Customer table.
