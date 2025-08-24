@@ -95,6 +95,16 @@ Authorization: Public.
 ### b. Customer-Facing Endpoints
 These endpoints are for logged-in customers (ROLE_CUSTOMER). The customerId is always inferred from the JWT token, not passed as a parameter.
 
+#### Get Order
+
+Endpoint: GET /api/v1/orders/{orderId}
+
+Description: Retrieves the order for given orderId.
+
+Response Body: OrderDTO
+
+Status Codes: 200 OK, 401 Unauthorized.
+
 #### Order Creation
 
 Endpoint: POST /api/v1/orders
@@ -134,7 +144,7 @@ Response Body: 204 No Content or OrderDTO of the canceled order.
 
 Status Codes: 204 No Content, 401 Unauthorized, 403 Forbidden (if order doesn't belong to user), 404 Not Found, 409 Conflict (if order is not in PENDING state).
 
-#### Get My Asset
+#### List Assets
 
 Endpoint: GET /api/v1/assets
 
@@ -146,6 +156,16 @@ Status Codes: 200 OK, 401 Unauthorized.
 
 ### c. Admin-Facing Endpoints (for Employees)
 These endpoints require ROLE_ADMIN and allow employees to manage any customer's data.
+
+#### Get Order
+
+Endpoint: GET /api/v1/admin/orders/{orderId}
+
+Description: Retrieves the order for given orderId.
+
+Response Body: OrderDTO
+
+Status Codes: 200 OK, 401 Unauthorized.
 
 #### Create Order for a Customer
 Endpoint: POST /api/v1/admin/orders
@@ -189,6 +209,17 @@ Description: Matches any PENDING order in the system.
 Response Body: OrderDTO
 
 Status Codes: Status Codes: 200 OK, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict.
+
+#### List Assets
+
+Endpoint: GET /api/v1/assets
+
+Description: Retrieves the asset for the authenticated customer.
+
+Response Body: List<AssetDTO>
+
+Status Codes: 200 OK, 401 Unauthorized.
+
 
 ## 5. Authentication & Authorization with JWTs
 > Note:
