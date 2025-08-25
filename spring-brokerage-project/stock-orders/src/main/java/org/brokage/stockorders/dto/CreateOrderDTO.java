@@ -21,7 +21,7 @@ public record CreateOrderDTO(
 
         @NotNull(message = "Size is required")
         @Positive(message = "Size must be greater than zero")
-        Long size,
+        BigDecimal size,
 
         @NotNull(message = "Price cannot be null")
         @DecimalMin(value = "0.01", message = "Price must be positive")

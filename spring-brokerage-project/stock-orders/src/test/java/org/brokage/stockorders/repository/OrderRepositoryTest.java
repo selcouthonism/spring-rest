@@ -38,7 +38,7 @@ class OrderRepositoryTest {
         order.setCustomer(customer);
         order.setAssetName("AAPL");
         order.setOrderSide(OrderSide.BUY);
-        order.setSize(10L);
+        order.setSize(new BigDecimal(10));
         order.setPrice(new BigDecimal("100"));
         order.setStatus(OrderStatus.PENDING);
         order.setCreateDate(Instant.now());
@@ -58,7 +58,7 @@ class OrderRepositoryTest {
         order1.setCustomer(customer);
         order1.setAssetName("AAPL");
         order1.setOrderSide(OrderSide.BUY);
-        order1.setSize(10L);
+        order1.setSize(new BigDecimal(10));
         order1.setPrice(new BigDecimal("100"));
         order1.setStatus(OrderStatus.PENDING);
         order1.setCreateDate(Instant.now());
@@ -68,7 +68,7 @@ class OrderRepositoryTest {
         order2.setCustomer(customer);
         order2.setAssetName("TSLA");
         order2.setOrderSide(OrderSide.SELL);
-        order2.setSize(5L);
+        order2.setSize(new BigDecimal(5));
         order2.setPrice(new BigDecimal("200"));
         order2.setStatus(OrderStatus.MATCHED);
         order2.setCreateDate(Instant.now());

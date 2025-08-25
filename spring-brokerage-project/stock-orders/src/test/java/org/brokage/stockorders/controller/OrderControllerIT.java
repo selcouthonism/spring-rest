@@ -60,7 +60,7 @@ class OrderControllerIT {
         customerId = customer.getId();
         mockUser = new CustomUserDetails(customer);
 
-        assetRepository.save(new Asset(customer, "AAPL", 1000L, 1000L));
+        assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
     }
 
     @Test
@@ -94,7 +94,7 @@ class OrderControllerIT {
     void getOrder_shouldReturnOrder() throws Exception {
         // persist an order directly
         Order order = orderRepository.save(new Order(customerRepository.findById(customerId).get(),
-                "AAPL", OrderSide.SELL, 5L, new BigDecimal("200"), OrderStatus.PENDING
+                "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200"), OrderStatus.PENDING
         ));
 
         mockMvc.perform(get("/api/v1/orders/{id}", order.getId())
@@ -109,7 +109,7 @@ class OrderControllerIT {
     @Test
     void cancelOrder_shouldReturnNoContent() throws Exception {
         Order order = orderRepository.save(new Order(customerRepository.findById(customerId).get(),
-                "AAPL", OrderSide.SELL, 3L, new BigDecimal("150"), OrderStatus.PENDING
+                "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150"), OrderStatus.PENDING
         ));
 
         mockMvc.perform(delete("/api/v1/orders/{id}", order.getId())

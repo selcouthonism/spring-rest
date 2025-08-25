@@ -80,7 +80,7 @@ class OrderControllerTest {
     @Test
     @WithMockUser(roles = "CUSTOMER")
     void getOrder_shouldReturnOrder() throws Exception {
-        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, 10L, new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
+        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
         Mockito.when(orderService.getOrder(eq(1L), eq(mockUser.getId())))
@@ -98,7 +98,7 @@ class OrderControllerTest {
     @WithMockUser(roles = "CUSTOMER")
     void createOrder_shouldReturnCreated() throws Exception {
         //CreateOrderDTO request = new CreateOrderDTO(customerId, "AAPL", OrderSide.SELL.name(), 10L, new BigDecimal(10L));
-        OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, 10L, new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
+        OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
         Mockito.when(orderService.createOrder(any(CreateOrderDTO.class), eq(mockUser.getId())))
@@ -131,8 +131,8 @@ class OrderControllerTest {
     @Test
     @WithMockUser(roles = "CUSTOMER")
     void listOrders_shouldReturnList() throws Exception {
-        OrderDTO dto1 = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, 10L, new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
-        OrderDTO dto2 = new OrderDTO(2L, customerId, "ALK", OrderSide.SELL, 10L, new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
+        OrderDTO dto1 = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
+        OrderDTO dto2 = new OrderDTO(2L, customerId, "ALK", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
         Mockito.when(orderService.listOrders(eq(mockUser.getId()), any(), any(), any()))
                 .thenReturn(List.of(dto1, dto2));
@@ -149,7 +149,7 @@ class OrderControllerTest {
     @Test
     @WithMockUser(roles = "CUSTOMER")
     void cancelOrder_shouldReturnNoContent() throws Exception {
-        OrderDTO canceled = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, 10L, new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
+        OrderDTO canceled = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
         Mockito.when(orderService.cancelOrder(eq(1L), eq(mockUser.getId())))
                 .thenReturn(canceled);

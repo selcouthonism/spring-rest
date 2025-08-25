@@ -41,7 +41,7 @@ public class Order {
     private OrderSide orderSide; // BUY or SELL
 
     @Column(nullable = false)
-    private Long size;
+    private BigDecimal size;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal price;
@@ -58,7 +58,7 @@ public class Order {
     @Column(name = "update_date")
     private Instant updateDate;
 
-    public Order(Customer customer, String assetName, OrderSide orderSide, Long size, BigDecimal price, OrderStatus status) {
+    public Order(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price, OrderStatus status) {
         this.customer = customer;
         this.assetName = assetName;
         this.orderSide = orderSide;

@@ -12,7 +12,7 @@ public record OrderDTO(
         Long customerId,
         String assetName,
         OrderSide orderSide,
-        Long size,
+        BigDecimal size,
         BigDecimal price,
         OrderStatus status,
 

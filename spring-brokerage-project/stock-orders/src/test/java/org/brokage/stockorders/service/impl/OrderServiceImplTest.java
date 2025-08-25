@@ -9,6 +9,7 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
+import org.brokage.stockorders.model.enums.Role;
 import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.OrderRepository;
@@ -37,6 +38,7 @@ class OrderServiceImplTest {
 
     private Customer customer;
     private Asset asset;
+    private Asset tryAsset;
 
     @BeforeEach
     void setUp() {
@@ -44,35 +46,49 @@ class OrderServiceImplTest {
 
         customer = new Customer();
         customer.setId(1L);
+        customer.setActive(true);
+        customer.setUsername("testUser");
+        customer.setPasswordHash("passwordHash");
+        customer.setRole(Role.CUSTOMER);
+        customerRepository.save(customer);
 
         asset = new Asset();
+        asset.setId(2L);
         asset.setAssetName("AAPL");
-        asset.setUsableSize(100L);
+        asset.setSize(new BigDecimal(100));
+        asset.setUsableSize(new BigDecimal(100));
         asset.setCustomer(customer);
+
+        tryAsset = new Asset();
+        tryAsset.setId(1L);
+        tryAsset.setCustomer(customer);
+        tryAsset.setAssetName("TRY");
+        tryAsset.setSize(new BigDecimal(10000));
+        tryAsset.setUsableSize(new BigDecimal(10000));
     }
 
     @Test
     void createOrder_sellOrder_shouldReserveAssetAndReturnDto() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", 10L, new BigDecimal("10"));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(10), new BigDecimal(10));
         Order order = new Order();
         order.setCustomer(customer);
         order.setAssetName("AAPL");
         order.setOrderSide(OrderSide.SELL);
-        order.setSize(10L);
-        order.setPrice(new BigDecimal("10"));
+        order.setSize(new BigDecimal(10));
+        order.setPrice(new BigDecimal(10));
         order.setStatus(OrderStatus.PENDING);
 
-        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, 10L, new BigDecimal("10"), OrderStatus.PENDING, null);
+        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.PENDING, null);
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(assetRepository.findByCustomerAndAssetName(customer, "AAPL")).thenReturn(Optional.of(asset));
+        when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
 
         OrderDTO result = orderService.createOrder(request);
 
         // Verify asset usable size reduced
-        assertThat(asset.getUsableSize()).isEqualTo(90L);
+        assertThat(asset.getUsableSize()).isEqualTo(new BigDecimal(90));
 
         // Verify order saved
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
@@ -84,10 +100,10 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_sellOrder_insufficientAsset_shouldThrow() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", 200L, new BigDecimal("10"));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(200), new BigDecimal(10));
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(assetRepository.findByCustomerAndAssetName(customer, "AAPL")).thenReturn(Optional.of(asset));
+        when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
 
         assertThrows(RuntimeException.class, () -> orderService.createOrder(request));
     }
@@ -99,20 +115,20 @@ class OrderServiceImplTest {
         order.setCustomer(customer);
         order.setAssetName("AAPL");
         order.setOrderSide(OrderSide.SELL);
-        order.setSize(10L);
+        order.setSize(new BigDecimal(10));
         order.setStatus(OrderStatus.PENDING);
 
-        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, 10L, new BigDecimal("10"), OrderStatus.CANCELED, null);
+        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.CANCELED, null);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(assetRepository.findByCustomerAndAssetName(customer, "AAPL")).thenReturn(Optional.of(asset));
+        when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
 
         OrderDTO result = orderService.cancelOrder(1L);
 
         // asset restored
-        assertThat(asset.getUsableSize()).isEqualTo(110L);
+        assertThat(asset.getUsableSize()).isEqualTo(new BigDecimal(110));
 
         // order status updated
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELED);
@@ -133,9 +149,20 @@ class OrderServiceImplTest {
     void matchOrder_pendingOrder_shouldReturnMatched() {
         Order order = new Order();
         order.setId(1L);
+        order.setCustomer(customer);
         order.setStatus(OrderStatus.PENDING);
+        order.setOrderSide(OrderSide.SELL);
+        order.setSize(new BigDecimal(10));
+        order.setPrice(new BigDecimal(10));
+        order.setAssetName("AAPL");
 
-        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, 10L, new BigDecimal("10"), OrderStatus.MATCHED, null);
+        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.MATCHED, null);
+
+        when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "TRY"))
+                .thenReturn(Optional.of(tryAsset));
+
+        when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL"))
+                .thenReturn(Optional.of(asset));
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderRepository.save(order)).thenReturn(order);

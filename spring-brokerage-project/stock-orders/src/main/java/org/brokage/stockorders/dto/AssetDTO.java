@@ -1,11 +1,13 @@
 package org.brokage.stockorders.dto;
 
 
+import java.math.BigDecimal;
+
 public record AssetDTO(
         Long id,
         Long customerId,
 
         String assetName,
-        Long size,
-        Long usableSize
+        BigDecimal size,
+        BigDecimal usableSize
 ) {}

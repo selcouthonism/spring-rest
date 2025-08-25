@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.dto.CreateOrderDTO;
 import org.brokage.stockorders.dto.OrderDTO;
+import org.brokage.stockorders.exceptions.NotEnoughBalanceException;
 import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.OrderMapper;
 import org.brokage.stockorders.repository.OrderSpecifications;
@@ -23,8 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,8 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepository customerRepository;
 
     private final OrderMapper orderMapper;
+
+    private final static String ASSET_TRY = "TRY";
 
     /**
      * Create a new order with PENDING status.
@@ -130,28 +136,35 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDTO matchOrder(Long orderId) {
-        //TODO: need further clarification
         Order order = findOrderById(orderId);
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new OperationNotPermittedException("Cannot match order. Status is: " + order.getStatus());
         }
 
+        matchOrder(order);
+
         order.setStatus(OrderStatus.MATCHED);
-        Order matchedOrder = orderRepository.save(order);
-        return orderMapper.toDto(matchedOrder);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
+    //Create Order methods
     private void validateOrder(CreateOrderDTO request, Customer customer) {
         // Security Check: Ensure the customer owns this order
         if (!request.customerId().equals(customer.getId())) {
             throw new ValidationException("Invalid customer id.");
         }
 
-        if (request.size() <= 0 || request.price().compareTo(BigDecimal.ZERO) <= 0) {
+        if(request.assetName().equals("TRY")) {
+            throw new OperationNotPermittedException("Cannot buy or sell TRY assets.");
+        }
+
+        if (request.size().compareTo(BigDecimal.ZERO) <= 0 || request.price().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Order size and price must be positive.");
         }
+
     }
 
     private void handleOrder(CreateOrderDTO request, OrderSide orderSide, Customer customer) {
@@ -168,23 +181,36 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void handleSellOrder(CreateOrderDTO request, Customer customer) {
-        Asset asset = assetRepository.findByCustomerAndAssetName(customer, request.assetName())
-                .orElseThrow(() -> new ResourceNotFoundException("No asset found for: " + request.assetName()));
+        Asset asset = findAssetForCustomer(request.customerId(), request.assetName());
 
         if (asset.getUsableSize().compareTo(request.size()) < 0) {
             throw new ValidationException("Insufficient usable shares. Have: " + asset.getUsableSize() + ", Need: " + request.size());
         }
 
         // Reserve usable size
-        asset.setUsableSize(asset.getUsableSize() - request.size());
+        asset.setUsableSize(asset.getUsableSize().subtract(request.size()));
         assetRepository.save(asset);
     }
 
     private void handleBuyOrder(CreateOrderDTO request, Customer customer) {
-        //TODO: need further clarification
-        throw new UnsupportedOperationException("need further clarification");
+        Asset tryAsset = findAssetForCustomer(request.customerId(), "TRY");
+
+        BigDecimal requiredTRY = request.size().multiply(request.price()).setScale(2, RoundingMode.HALF_UP);;
+        if (tryAsset.getUsableSize().compareTo(requiredTRY) < 0) {
+            throw new NotEnoughBalanceException("Not enough TRY balance");
+        }
+
+        tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(requiredTRY));
+        assetRepository.save(tryAsset);
     }
 
+
+    private Asset findAssetForCustomer(Long customerId, String assetName) {
+        return assetRepository.findByCustomerIdAndAssetNameForUpdate(customerId, assetName)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found for customer: " + customerId + ", assetName: " + assetName));
+    }
+
+    //Utility
     private Order findOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for ID:" + orderId));
@@ -206,19 +232,62 @@ public class OrderServiceImpl implements OrderService {
             throw new OperationNotPermittedException("Cannot cancel order. Status is: " + order.getStatus());
         }
 
-        if (order.getOrderSide() == OrderSide.SELL) {
+        if (order.getOrderSide() == OrderSide.BUY) {
+            BigDecimal requiredTRY = order.getSize().multiply(order.getPrice()).setScale(2, RoundingMode.HALF_UP);;
+            Asset tryAsset = findAssetForCustomer(order.getCustomer().getId(), ASSET_TRY);
+            tryAsset.setUsableSize(tryAsset.getUsableSize().add(requiredTRY));
+            assetRepository.save(tryAsset);
+        } else { //SELL
             // Restore usable shares
-            Asset asset = assetRepository.findByCustomerAndAssetName(order.getCustomer(), order.getAssetName())
-                    .orElseThrow(() -> new IllegalStateException("Asset missing for a SELL order cancellation. Data integrity issue."));
+            Asset asset = assetRepository.findByCustomerIdAndAssetNameForUpdate(order.getCustomer().getId(), order.getAssetName())
+                    .orElseThrow(() -> new IllegalStateException("Asset not found"));
 
-            asset.setUsableSize(asset.getUsableSize() + order.getSize());
+            asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
             assetRepository.save(asset);
-        } else {
-            // todo: Restore cash balance
         }
 
         order.setStatus(OrderStatus.CANCELED);
-        Order canceledOrder = orderRepository.save(order);
-        return orderMapper.toDto(canceledOrder);
+        return orderMapper.toDto(orderRepository.save(order));
     }
+
+    //Match methods
+    private void matchOrder(Order order) {
+        switch (order.getOrderSide()){
+            case SELL:
+                matchSellOrder(order);
+                break;
+            case BUY:
+                matchBuyOrder(order);
+                break;
+            default:
+                throw new ValidationException("Order side not exist");
+        }
+    }
+
+    private void matchSellOrder(Order order) {
+        Asset tryAsset = findAssetForCustomer(order.getCustomer().getId(), ASSET_TRY);
+        Asset asset = findAssetForCustomer(order.getCustomer().getId(),  order.getAssetName());
+
+        asset.setSize(asset.getSize().subtract(order.getSize()));
+
+        BigDecimal earnedTRY = order.getSize().multiply(order.getPrice());
+        tryAsset.setSize(tryAsset.getSize().add(earnedTRY));
+        tryAsset.setUsableSize(tryAsset.getUsableSize().add(earnedTRY));
+    }
+
+    private void matchBuyOrder(Order order) {
+        Asset tryAsset = findAssetForCustomer(order.getCustomer().getId(), ASSET_TRY);
+        Asset asset = assetRepository.findByCustomerIdAndAssetNameForUpdate(order.getCustomer().getId(), order.getAssetName())
+                .orElse(new Asset(order.getCustomer(), order.getAssetName(), new BigDecimal(0), new BigDecimal(0)));
+
+        BigDecimal requiredTRY = order.getSize().multiply(order.getPrice()).setScale(2, RoundingMode.HALF_UP);
+        tryAsset.setSize(tryAsset.getSize().subtract(requiredTRY)); // finalize TRY deduction
+
+        asset.setSize(asset.getSize().add(order.getSize()));
+        asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
+
+        assetRepository.save(tryAsset);
+        assetRepository.save(asset);
+    }
+
 }
