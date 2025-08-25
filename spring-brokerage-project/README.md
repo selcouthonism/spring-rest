@@ -55,6 +55,10 @@ The following customer, asset and order are created on initialization. (LoadData
 - customer: customer2 - assetName: TRY - size: 10000 - usableSize: 10000
 - customer: customer3 - assetName: TRY - size: 10000 - usableSize: 10000
 
+- customer: customer1 - assetName: AAPL - size: 5000 - usableSize: 5000
+- customer: customer2 - assetName: AAPL - size: 5000 - usableSize: 5000
+- customer: customer3 - assetName: AAPL - size: 5000 - usableSize: 5000
+
 **Order:**
 - customer: customer1 - assetName: TRY - orderSide: SELL - size: 100 - price: 0.1 - orderStatus: CANCELED
 - customer: customer2 - assetName: TRY - orderSide: SELL - size: 100 - price: 0.1 - orderStatus: CANCELED
@@ -229,10 +233,6 @@ Spring Framework Modules
 - Spring Test / MockMvc – Unit and integration testing of controllers and services
 
 ## Technical Debt:
-- Need further clarification for createOrder - BUY. Currently it returns UnsupportedOperationException
-
-- Need further clarification for matchOrder. Currently it only updates the OrderStatus (PENDING -> MATCHED)
-
 - Profiles (dev, test, prod)
 - The application-test.yml and application-prod.yml files will be created.
 
