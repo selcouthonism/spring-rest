@@ -35,13 +35,17 @@ public class LoadDatabase {
             Customer admin1 = customerRepository.save(new Customer("admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
 
             //Every customer has 10000 TRY as an asset
-            assetRepository.save(new Asset(customer1, "TRY", 10000L, 10000L));
-            assetRepository.save(new Asset(customer2, "TRY", 10000L, 10000L));
-            assetRepository.save(new Asset(customer3, "TRY", 10000L, 10000L));
+            assetRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            assetRepository.save(new Asset(customer2, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            assetRepository.save(new Asset(customer3, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+
+            assetRepository.save(new Asset(customer1, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            assetRepository.save(new Asset(customer2, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            assetRepository.save(new Asset(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
 
 
-            orderRepository.save(new Order(customer1, "TRY", OrderSide.SELL, 100L, new BigDecimal("1.0"), OrderStatus.CANCELED));
-            orderRepository.save(new Order(customer2, "TRY", OrderSide.SELL, 100L, new BigDecimal("1.0"), OrderStatus.CANCELED));
+            orderRepository.save(new Order(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"), OrderStatus.CANCELED));
+            orderRepository.save(new Order(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"), OrderStatus.CANCELED));
 
             customerRepository.findAll().forEach(customer -> {
                 log.info("Preloaded " + customer);
