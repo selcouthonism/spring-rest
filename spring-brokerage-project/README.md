@@ -163,7 +163,7 @@ curl -u customer1:password1 \
      -H "Content-Type: application/json" \
      -d '{
            "customerId": 1,
-           "assetName": "TRY",
+           "assetName": "AAPL",
            "orderSide": "SELL",
            "size": 10,
            "price": 1
@@ -179,9 +179,9 @@ Response: HTTP 201 Created
 curl -u admin1:admin_password1 \
      -H "Content-Type: application/json" \
      -d '{
-           "customerId": 1,
-           "assetName": "TRY",
-           "orderSide": "SELL",
+           "customerId": 2,
+           "assetName": "AAPL",
+           "orderSide": "BUY",
            "size": 10,
            "price": 1
          }' \
