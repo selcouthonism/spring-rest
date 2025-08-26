@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Configuration
 public class LoadDatabase {
@@ -44,8 +45,13 @@ public class LoadDatabase {
             assetRepository.save(new Asset(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
 
 
-            orderRepository.save(new Order(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"), OrderStatus.CANCELED));
-            orderRepository.save(new Order(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"), OrderStatus.CANCELED));
+            Order order1 = Order.create(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
+            order1.setStatus(OrderStatus.CANCELED);
+
+            Order order2 = Order.create(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
+            order2.setStatus(OrderStatus.CANCELED);
+
+            orderRepository.saveAll(List.of(order1, order2));
 
             customerRepository.findAll().forEach(customer -> {
                 log.info("Preloaded " + customer);

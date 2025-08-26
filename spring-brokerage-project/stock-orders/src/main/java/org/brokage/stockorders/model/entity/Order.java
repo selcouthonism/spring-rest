@@ -58,12 +58,26 @@ public class Order {
     @Column(name = "update_date")
     private Instant updateDate;
 
-    public Order(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price, OrderStatus status) {
+    private Order(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price) {
         this.customer = customer;
         this.assetName = assetName;
         this.orderSide = orderSide;
         this.size = size;
         this.price = price;
         this.status = status;
+    }
+
+    public static Order create(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price){
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setAssetName(assetName);
+        order.setOrderSide(orderSide);
+        order.setSize(size);
+        order.setPrice(price);
+        order.setStatus(OrderStatus.PENDING);
+        order.setCreateDate(Instant.now());
+        order.setUpdateDate(Instant.now());
+
+        return order;
     }
 }

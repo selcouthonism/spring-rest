@@ -4,7 +4,6 @@ import org.brokage.stockorders.model.entity.Asset;
 import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
-import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.model.enums.Role;
 import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
@@ -93,8 +92,8 @@ class OrderControllerIT {
     @Test
     void getOrder_shouldReturnOrder() throws Exception {
         // persist an order directly
-        Order order = orderRepository.save(new Order(customerRepository.findById(customerId).get(),
-                "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200"), OrderStatus.PENDING
+        Order order = orderRepository.save(Order.create(customerRepository.findById(customerId).get(),
+                "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200")
         ));
 
         mockMvc.perform(get("/api/v1/orders/{id}", order.getId())
@@ -108,8 +107,8 @@ class OrderControllerIT {
 
     @Test
     void cancelOrder_shouldReturnNoContent() throws Exception {
-        Order order = orderRepository.save(new Order(customerRepository.findById(customerId).get(),
-                "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150"), OrderStatus.PENDING
+        Order order = orderRepository.save(Order.create(customerRepository.findById(customerId).get(),
+                "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150")
         ));
 
         mockMvc.perform(delete("/api/v1/orders/{id}", order.getId())
