@@ -10,33 +10,33 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final Customer customer;
+    private final UserCredentials credential;
 
-    public CustomUserDetails(Customer customer) {
-        this.customer = customer;
+    public CustomUserDetails(UserCredentials credential) {
+        this.credential = credential;
     }
 
     public Long getId() {
-        return customer.getId();
+        return credential.getCustomer().getId();
     }
 
     public Customer getCustomer() {
-        return customer;
+        return credential.getCustomer();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + customer.getRole()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + credential.getRole()));
     }
 
     @Override
     public String getPassword() {
-        return customer.getPasswordHash();
+        return credential.getPasswordHash();
     }
 
     @Override
     public String getUsername() {
-        return customer.getUsername();
+        return credential.getUsername();
     }
 
     public boolean isAdmin() {

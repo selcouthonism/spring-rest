@@ -4,7 +4,6 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ class OrderRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        customer = customerRepository.save(new Customer("testUser", "password", Role.CUSTOMER, true));
+        customer = customerRepository.save(Customer.of("testUser", "lastname"));
     }
 
     @Test

@@ -2,11 +2,9 @@ package org.brokage.stockorders.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.brokage.stockorders.model.enums.Role;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -22,23 +20,22 @@ public class Customer {
     @GeneratedValue
     private Long id;
 
-    //todo: Security: username, password, role information must be kept in another table.
-    @Column(nullable = false, unique = true, length = 100)
-    private String username;
+    @Column(nullable = false)
+    private String firstName;
 
     @Column(nullable = false)
-    private String passwordHash;
+    private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Role role; // ADMIN or CUSTOMER
+    @Column(nullable = true)
+    private String email;
+
+    @Column(nullable = true)
+    private String phoneNumber;
 
     @CreationTimestamp
-    @Column(updatable = false)
-    private Instant createdAt;
+    @Column(name = "create_date", nullable = false, updatable = false)
+    private Instant createDate;
 
-    @Column(nullable = false)
-    private boolean active = true;
 
 
     // Relationships
@@ -49,22 +46,13 @@ public class Customer {
     private Set<Asset> assets;
 
 
-    public Customer(String username, String password, Role role, boolean active) {
-        this.username = username;
-        this.passwordHash = password;
-        this.role = role;
-        this.active = active;
+
+    private Customer(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
-    @Override
-    public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
-                ", role=" + role +
-                ", createdAt=" + createdAt +
-                ", active=" + active +
-                '}';
+    public static Customer of(String firstName, String lastName) {
+        return new Customer(firstName, lastName);
     }
 }

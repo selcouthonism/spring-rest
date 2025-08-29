@@ -51,10 +51,8 @@ class OrderServiceImplTest {
 
         customer = new Customer();
         customer.setId(1L);
-        customer.setActive(true);
-        customer.setUsername("testUser");
-        customer.setPasswordHash("passwordHash");
-        customer.setRole(Role.CUSTOMER);
+        customer.setFirstName("firstName");
+        customer.setLastName("lastName");
         customerRepository.save(customer);
 
         asset = new Asset();

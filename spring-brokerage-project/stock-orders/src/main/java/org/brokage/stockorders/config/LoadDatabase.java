@@ -9,6 +9,8 @@ import org.brokage.stockorders.model.enums.Role;
 import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.OrderRepository;
+import org.brokage.stockorders.repository.UserCredentialRepository;
+import org.brokage.stockorders.security.UserCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -25,15 +27,20 @@ public class LoadDatabase {
 
     @Bean
     //@Profile("test")
-    CommandLineRunner initDatabase(CustomerRepository customerRepository, AssetRepository assetRepository, OrderRepository orderRepository) {
+    CommandLineRunner initDatabase(CustomerRepository customerRepository, AssetRepository assetRepository, OrderRepository orderRepository, UserCredentialRepository credentialRepository) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return args -> {
 
-            Customer customer1 = customerRepository.save(new Customer("customer1", encoder.encode("password1"), Role.CUSTOMER, true));
-            Customer customer2 = customerRepository.save(new Customer("customer2", encoder.encode("password2"), Role.CUSTOMER, true));
-            Customer customer3 = customerRepository.save(new Customer("customer3", encoder.encode("password3"), Role.CUSTOMER, true));
-            Customer admin1 = customerRepository.save(new Customer("admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
+            Customer customer1 = customerRepository.save(Customer.of("customer1FN", "lastName1"));
+            Customer customer2 = customerRepository.save(Customer.of("customer2FN", "lastName1"));
+            Customer customer3 = customerRepository.save(Customer.of("customer3FN", "lastName1"));
+            Customer admin1 = customerRepository.save(Customer.of("admin1FN", "lastName1"));
+
+            credentialRepository.save(UserCredentials.of(customer1, "customer1", encoder.encode("password1"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(customer2, "customer2", encoder.encode("password2"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(customer3, "customer3", encoder.encode("password3"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(admin1, "admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
 
             //Every customer has 10000 TRY as an asset
             assetRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));

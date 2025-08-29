@@ -9,13 +9,13 @@ import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.OrderRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
+import org.brokage.stockorders.security.UserCredentials;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,15 +49,14 @@ class OrderControllerIT {
     @BeforeEach
     void setUp() {
         // ensure test DB has a customer
-        Customer customer = new Customer();
-        customer.setUsername("testUser");
-        customer.setPasswordHash(new BCryptPasswordEncoder().encode("password"));
-        customer.setRole(Role.CUSTOMER);
-        customer.setActive(true);
+        Customer customer = Customer.of("testUser", "lastName");
+        customer.setId(customerId);
+
+        UserCredentials credential = UserCredentials.of(customer, "username", "password", Role.CUSTOMER, true);
 
         customerRepository.save(customer);
         customerId = customer.getId();
-        mockUser = new CustomUserDetails(customer);
+        mockUser = new CustomUserDetails(credential);
 
         assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
     }
