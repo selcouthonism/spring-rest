@@ -1,0 +1,5 @@
+application:
+  security:
+    jwt:
+      secret-key: "6bf78d0685874619c016b0e9d9a1477365b29662bd76bf0d545e31723f18a1c3" #"your-secret-key" HMAC256
+      expiration-ms: 86400000
