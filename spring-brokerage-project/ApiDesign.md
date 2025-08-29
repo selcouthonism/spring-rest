@@ -29,13 +29,11 @@
 Table: customers
 
 Entity: Customer
-- id: (VARCHAR, unique UUID)
+- id: (BIGINT, Primary Key, Auto-Generated)
 - firstName: (VARCHAR)
 - lastName: (VARCHAR)
-- fullName (VARCHAR)
-- username (VARCHAR, Unique, Indexed) 
-- password (VARCHAR, Hashed - e.g., BCrypt)
-- role (VARCHAR) - Values: ROLE_CUSTOMER, ROLE_ADMIN 
+- email: (VARCHAR)
+- phone: (VARCHAR)
 - createDate (TIMESTAMP)
 
 #### Asset Entity: (per-customer holding)
@@ -73,22 +71,27 @@ Entity: Order
 - Indexes: (customerId, createDate desc), (customerId, status), (assetName, status)
 ```
 
+#### UserCredentials Entity:
+- id: (BIGINT, Primary Key, Auto-Generated)
+- customerId: (Foreign Key to Customer.id)
+- createdAt: (timestampt)
+- username (VARCHAR, Unique, Indexed) 
+- password (VARCHAR, Hashed - e.g., BCrypt)
+- role: (ENUM) - Values: CUSTOMER, ADMIN
+
 ## 4. RESTful API Endpoints
 All endpoints will be versioned under /api/v1/.
 
 ### a. Authentication Endpoints
 
 #### Login
-Basic authentication with username and password.
-
-#### //TODO: Future Implementation:
 Endpoint: POST /api/v1/auth/login
 
 Description: Authenticates a user (customer or admin) and returns a JWT.
 
-Request Body: LoginRequestDTO { username, password }
+Request Body: LoginRequest { username, password }
 
-Response Body: LoginResponseDTO { jwtToken, username, role }
+Response Body: LoginResponse { jwtToken }
 
 Authorization: Public.
 
