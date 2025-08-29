@@ -37,10 +37,10 @@ public class LoadDatabase {
             Customer customer3 = customerRepository.save(Customer.of("customer3FN", "lastName1"));
             Customer admin1 = customerRepository.save(Customer.of("admin1FN", "lastName1"));
 
-            credentialRepository.save(UserCredentials.of(customer1, "customer1", encoder.encode("password1"), Role.CUSTOMER, true));
-            credentialRepository.save(UserCredentials.of(customer2, "customer2", encoder.encode("password2"), Role.CUSTOMER, true));
-            credentialRepository.save(UserCredentials.of(customer3, "customer3", encoder.encode("password3"), Role.CUSTOMER, true));
-            credentialRepository.save(UserCredentials.of(admin1, "admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
+            credentialRepository.save(UserCredentials.of(customer1.getId(), "customer1", encoder.encode("password1"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(customer2.getId(), "customer2", encoder.encode("password2"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(customer3.getId(), "customer3", encoder.encode("password3"), Role.CUSTOMER, true));
+            credentialRepository.save(UserCredentials.of(admin1.getId(), "admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
 
             //Every customer has 10000 TRY as an asset
             assetRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));

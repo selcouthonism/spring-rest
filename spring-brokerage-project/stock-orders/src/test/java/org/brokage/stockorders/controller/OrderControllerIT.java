@@ -9,6 +9,7 @@ import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.OrderRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
+import org.brokage.stockorders.security.JwtUtil;
 import org.brokage.stockorders.security.UserCredentials;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ class OrderControllerIT {
     private MockMvc mockMvc;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
@@ -45,20 +49,22 @@ class OrderControllerIT {
 
     private CustomUserDetails mockUser;
     private Long customerId;
+    private String jwtToken;
 
     @BeforeEach
     void setUp() {
         // ensure test DB has a customer
         Customer customer = Customer.of("testUser", "lastName");
-        customer.setId(customerId);
-
-        UserCredentials credential = UserCredentials.of(customer, "username", "password", Role.CUSTOMER, true);
-
         customerRepository.save(customer);
         customerId = customer.getId();
+
+        UserCredentials credential = UserCredentials.of(customer.getId(), "username", "password", Role.CUSTOMER, true);
         mockUser = new CustomUserDetails(credential);
 
         assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
+
+        // 🔑 generate token
+        jwtToken = jwtUtil.generateToken(mockUser);
     }
 
     @Test
@@ -74,6 +80,7 @@ class OrderControllerIT {
             """.formatted(customerId);
 
         mockMvc.perform(post("/api/v1/orders")
+                        .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,6 +103,7 @@ class OrderControllerIT {
         ));
 
         mockMvc.perform(get("/api/v1/orders/{id}", order.getId())
+                        .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(order.getId()))
@@ -111,6 +119,7 @@ class OrderControllerIT {
         ));
 
         mockMvc.perform(delete("/api/v1/orders/{id}", order.getId())
+                        .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser))
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent());

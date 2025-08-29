@@ -29,13 +29,13 @@ public class UserCredentialsRepositoryTest {
 
     @Test
     void saveAndFindUserCredential() {
-        UserCredentials credential = UserCredentials.of(customer, "username", "password", Role.CUSTOMER, true);
+        UserCredentials credential = UserCredentials.of(customer.getId(), "username", "password", Role.CUSTOMER, true);
 
         UserCredentials saved = credentialRepository.save(credential);
         UserCredentials found = credentialRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getUsername()).isEqualTo("username");
         assertThat(found.getPasswordHash()).isEqualTo("password");
-        assertThat(found.getCustomer()).isEqualTo(customer);
+        assertThat(found.getCustomerId()).isEqualTo(customer.getId());
     }
 }

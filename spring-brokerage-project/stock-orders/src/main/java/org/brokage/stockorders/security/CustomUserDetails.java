@@ -1,6 +1,5 @@
 package org.brokage.stockorders.security;
 
-import org.brokage.stockorders.model.entity.Customer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +16,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public Long getId() {
-        return credential.getCustomer().getId();
-    }
-
-    public Customer getCustomer() {
-        return credential.getCustomer();
+        return credential.getCustomerId();
     }
 
     @Override
