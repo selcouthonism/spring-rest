@@ -45,10 +45,16 @@ mvn spring-boot:run
 The following customer, asset and order are created on initialization. (LoadDatabase.class)
 
 **Customer:**
+- firstName: customer1FN - lastName: lastName1
+- firstName: customer2FN - lastName: lastName1
+- firstName: customer3FN - lastName: lastName1
+- firstName: admin1FN - lastName: lastName1
+
+**UserCredentails:**
 - username: customer1 - pass: password1 - Role: CUSTOMER
 - username: customer2 - pass: password2 - Role: CUSTOMER
 - username: customer3 - pass: password3 - Role: CUSTOMER
-- username: admin1 - pass: admin_password1 - Role: CUSTOMER
+- username: admin1 - pass: admin_password1 - Role: ADMIN
 
 **Asset:**
 - customer: customer1 - assetName: TRY - size: 10000 - usableSize: 10000
