@@ -429,7 +429,6 @@ Prometheus will automatically fetch the metrics from your application every 15 s
 - Mount prometheus.yml config into the container.
 - By default, it exposes the web UI and metrics at port 9090.
 
-
 ```
 docker run -d --name prometheus \
   -p 9090:9090 \
