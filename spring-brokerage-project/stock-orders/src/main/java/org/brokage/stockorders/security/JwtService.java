@@ -6,20 +6,20 @@ import io.jsonwebtoken.security.Keys;
 import org.brokage.stockorders.config.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
-@Component
+@Service
 @EnableConfigurationProperties(JwtProperties.class)
-public class JwtUtil {
+public class JwtService {
 
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
 
-    public JwtUtil(JwtProperties jwtProperties) {
+    public JwtService(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
         // Ensure the secret key is properly encoded for HMAC-SHA algorithms
         this.secretKey = Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes());

@@ -9,7 +9,7 @@ import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.OrderRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
-import org.brokage.stockorders.security.JwtUtil;
+import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.security.UserCredentials;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class OrderControllerIT {
     private MockMvc mockMvc;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -64,7 +64,7 @@ class OrderControllerIT {
         assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
 
         // 🔑 generate token
-        jwtToken = jwtUtil.generateToken(mockUser);
+        jwtToken = jwtService.generateToken(mockUser);
     }
 
     @Test

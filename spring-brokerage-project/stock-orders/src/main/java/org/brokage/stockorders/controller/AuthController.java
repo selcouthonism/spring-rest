@@ -3,7 +3,7 @@ package org.brokage.stockorders.controller;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.dto.LoginRequest;
 import org.brokage.stockorders.dto.LoginResponse;
-import org.brokage.stockorders.security.JwtUtil;
+import org.brokage.stockorders.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
@@ -27,7 +27,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtUtil.generateToken(userDetails);
+        String jwt = jwtService.generateToken(userDetails);
         return new LoginResponse(jwt);
     }
 }

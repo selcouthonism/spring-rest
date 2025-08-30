@@ -1,7 +1,6 @@
 package org.brokage.stockorders.controller;
 
 import org.brokage.stockorders.assembler.OrderModelAssembler;
-import org.brokage.stockorders.config.JwtAuthenticationFilter;
 import org.brokage.stockorders.dto.CreateOrderDTO;
 import org.brokage.stockorders.dto.OrderDTO;
 import org.brokage.stockorders.model.entity.Customer;
@@ -9,21 +8,19 @@ import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.model.enums.Role;
 import org.brokage.stockorders.security.CustomUserDetails;
-import org.brokage.stockorders.security.JwtUtil;
+import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.security.UserCredentials;
 import org.brokage.stockorders.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -70,8 +67,8 @@ class OrderControllerTest {
     @TestConfiguration
     static class TestConfig {
         @Bean
-        JwtUtil jwtUtil() {
-            JwtUtil mock = Mockito.mock(JwtUtil.class);
+        JwtService jwtUtil() {
+            JwtService mock = Mockito.mock(JwtService.class);
             when(mock.isTokenValid(jwtToken, mockUser)).thenReturn(true);
             when(mock.extractUsername("mock.jwt.token")).thenReturn("testUser");
             return mock;
