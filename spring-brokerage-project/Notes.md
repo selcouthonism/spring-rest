@@ -133,3 +133,162 @@ public class UnsafeCreateOrderHandler {
 }
 ```
 In this dangerous example, if Thread A's request is paused by the OS right after setting this.currentContext, and Thread B runs, Thread B will overwrite the currentContext field. When Thread A resumes, it will be working with Customer B's data, leading to catastrophic bugs.
+
+
+
+# Authentication & Authorization
+
+## What is a JSON Web Token (JWT)?
+A JWT is a compact, URL-safe standard used to securely transmit information between parties as a JSON object. It is "self-contained," meaning it carries all the necessary information about the user, avoiding the need to query a database on every request.
+
+A JWT consists of three parts separated by dots (.):
+
+1. **Header:** Contains metadata about the token, such as the signing algorithm (e.g., HS256) and the token type (JWT). This part is Base64Url encoded.
+{"alg": "HS256", "typ": "JWT"}
+
+2. **Payload (Claims):** Contains the statements ("claims") about the entity (typically, the user) and additional data. There are standard claims like sub (subject/username), iat (issued at time), and exp (expiration time), as well as custom claims you can add (e.g., roles, user ID). This part is also Base64Url encoded.
+{"sub": "john.doe", "iat": 1661333984, "exp": 1661337584, "roles": ["ROLE_CUSTOMER"]}
+
+3. **Signature:** This is the most critical part for security. To create the signature, you take the encoded header, the encoded payload, a secret key, and sign them with the algorithm specified in the header.
+HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secretKey) The signature ensures that the token's content has not been tampered with. Only the party that knows the secretKey can verify the signature or create new valid tokens.
+
+## How JWT is Used in This Application (The Authentication Flow)
+
+### Authentication (Login):
+- A user submits their *username* and *password* to the *POST /api/v1/auth/login endpoint*.
+- The ***AuthController*** passes these credentials to Spring Security's **AuthenticationManager**.
+- The **AuthenticationManager** uses our custom ***UserDetailsService*** to fetch the user's data from the database and the **PasswordEncoder** to securely compare the passwords.
+- If the credentials are valid, the ***AuthController*** calls the ***JwtService*** to generate a JWT. The user's username is placed in the payload (sub claim).
+- This JWT is sent back to the client in the response body.
+
+### Stateless Authorization (Subsequent Requests):
+- The client (e.g., a web browser or mobile app) must store this JWT securely. For every subsequent request to a protected endpoint (like GET /api/v1/orders), the client must include the JWT in the Authorization header with the Bearer scheme:
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+- Our custom ***JwtAuthenticationFilter*** intercepts every incoming request.
+- It checks for the Authorization header. If it finds a Bearer token, it extracts it.
+- It uses the ***JwtService*** to parse the token and **validate the signature** using the same secret key. This proves the token is authentic and hasn't been altered.
+- If the signature is valid, it extracts the username from the token's payload.
+- It then creates a full **UserDetails** object from the database to get the user's latest roles and permissions.
+- Finally, it sets this user information in Spring's **SecurityContextHolder**. From this point on, Spring Security knows who the user is for the duration of the request. The **@PreAuthorize** annotations on your controllers can then work as intended, checking the roles and permissions of the authenticated user.
+
+The key benefit here is statelessness. The server does not need to maintain a session for the user. Every request contains all the information needed for the server to verify the user's identity, making the application highly scalable.
+
+# Configuration with @ConfigurationProperties
+Spring Boot strongly encourages using type-safe configuration properties via the @ConfigurationProperties annotation. This is cleaner, safer, and provides better IDE support. For externalized configuration (e.g., JWT secret keys, token expiration times, external API URLs), create a dedicated properties class.
+
+In application.yml:
+```
+application:
+  security:
+    jwt:
+      secret: "your-very-long-and-secure-secret-key"
+      expiration-ms: 86400000
+```
+
+Create an immutable object for the properties:
+```
+@ConfigurationProperties(prefix = "application.security.jwt")
+public record JwtProperties(
+        String secretKey,
+        long expirationMs
+) { }
+```
+
+Then enable configuration properties in a service or config class:
+```
+@Component
+@EnableConfigurationProperties(JwtProperties.class)
+public class JwtService {
+
+    private final JwtProperties jwtProperties;
+    private final SecretKey secretKey;
+    
+    public JwtService(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+        // Ensure the secret key is properly encoded for HMAC-SHA algorithms
+        this.secretKey = Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes());
+    }
+
+    ...
+}
+```
+
+
+# Adding Roles to JWT (Not applied to our project)
+It allows your services to perform authorization checks without needing to query the database for user permissions on every single request, making your system more stateless and scalable.
+
+The process involves two main steps:
+1. Adding a "roles" claim when the token is generated.
+2. Extracting the "roles" claim and creating the user's security context when the token is validated.
+
+## Step 1: Update JwtService to Add Roles During Token Creation
+We'll modify the generateToken method to extract the user's roles (authorities) from the UserDetails object and embed them into the JWT's payload as a custom claim.
+
+UPDATED generateToken method:
+```
+    public String generateToken(UserDetails userDetails) {
+        // Extract roles from UserDetails and convert to a list of strings
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .claim("roles", roles) // Add the roles as a custom claim
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.expirationMs()))
+                .signWith(secretKey)
+                .compact();
+    }
+```
+New method to extract roles:
+```
+public List<String> extractRoles(String token) {
+    return extractClaim(token, claims -> claims.get("roles", List.class));
+}
+```
+
+## Step 2: Update JwtAuthenticationFilter to Use Roles from the Token
+Next, we'll modify the filter. Instead of hitting the database on every request to get the user's roles, we will extract them directly from the token. This significantly reduces database load.
+
+We don't need to load the user from the DB. We can build the UserDetails from the token. This check is now simpler because we trust the token's contents after validation.
+```
+if (!isTokenExpired(jwt)) { // Simplified validation
+
+    // Extract roles from the token
+    List<String> roles = jwtService.extractRoles(jwt);
+    List<SimpleGrantedAuthority> authorities = roles.stream()
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
+
+    // Create UserDetails object directly from token claims
+    UserDetails userDetails = new User(username, "", authorities);
+
+    // Create the authentication token
+    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities() // Use authorities from the token
+    );
+    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    
+    // Set the authentication in the security context
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+}
+```
+
+## Explanation of Changes and Trade-offs
+
+### Performance Benefit (The "Why")
+By embedding roles in the JWT, your ***JwtAuthenticationFilter*** no longer needs to make a database call via the ***UserDetailsService*** for every single API request. It can build the user's security principal directly from the contents of the token. For an application with high traffic, this dramatically reduces database load and improves the response time and scalability of your services.
+
+### Security Consideration (The Trade-off)
+This design introduces an important trade-off. Since the roles are read from the token, they are only as fresh as the token itself.
+
+- **Scenario:** An administrator revokes a user's ROLE_ADMIN access in the database.
+- **Outcome:** The user can still access admin-protected endpoints using their existing, unexpired JWT, because the token still contains the "roles": ["ROLE_ADMIN"] claim. The user's access will only be demoted after their current token expires and they are forced to log in again to get a new one.
+
+For most applications, this is an acceptable trade-off. If your system requires immediate revocation of permissions, you would need to implement a more complex solution, such as:
+- Keeping the database call in the filter to fetch fresh roles on every request (the hybrid approach).
+- Maintaining a token blocklist in a fast cache like Redis.
