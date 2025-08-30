@@ -292,3 +292,148 @@ This design introduces an important trade-off. Since the roles are read from the
 For most applications, this is an acceptable trade-off. If your system requires immediate revocation of permissions, you would need to implement a more complex solution, such as:
 - Keeping the database call in the filter to fetch fresh roles on every request (the hybrid approach).
 - Maintaining a token blocklist in a fast cache like Redis.
+
+# Observability
+
+## What are Actuator and Prometheus?
+**Spring Boot Actuator:** A library that exposes operational information about your running application through a set of HTTP endpoints. It tells you what's happening inside your application (health, metrics, environment info, etc.).
+
+**Prometheus:** A powerful, open-source monitoring and alerting system. It works by "scraping" (pulling) metrics from endpoints like those provided by Actuator. It stores these metrics in a time-series database, allowing you to query them, create dashboards, and set up alerts.
+
+Together, they form a standard and powerful stack for modern application observability.
+
+### Step 1: Add the Required Dependencies
+- **spring-boot-starter-actuator:** The core Actuator library.
+- **micrometer-registry-prometheus:** The specific Micrometer adapter that formats the metrics into a plain text format that Prometheus can understand.
+
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-registry-prometheus</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+### Step 2: Configure the Actuator Endpoints
+By default, for security reasons, Spring Boot 3 only exposes the /actuator/health endpoint over the web. We need to explicitly tell Actuator which endpoints to expose.
+
+We also can add custom information to the /actuator/info endpoint.
+
+File: src/main/resources/application.yml
+```
+# Management Endpoints Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose specific endpoints. Be deliberate about what you expose.
+        # 'prometheus' is needed for the monitoring system.
+        # 'health' and 'info' are generally safe and useful.
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      # Show full health details (e.g., database status) when authenticated.
+      # Defaults to 'never' show details. 'when-authorized' is a good choice.
+      show-details: when-authorized
+
+# Custom application info for the /actuator/info endpoint
+info:
+  application:
+    name: Brokerage Trading API
+    description: API for managing customer stock orders.
+    version: 1.0.0
+```
+
+
+### Step 3: Secure the Actuator Endpoints
+This is a critical step. By default, Spring Security will protect all endpoints, including the new actuator ones. We need to configure our security rules to:
+- **Allow** the Prometheus server to access /actuator/prometheus without authentication.
+- **Require** an ADMIN role to access any other sensitive actuator endpoints.
+
+Update the SecurityConfig:
+```
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            // Public endpoints for authentication and API docs
+            .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            
+            // Allow the Prometheus server to scrape metrics without authentication
+            .requestMatchers("/actuator/prometheus").permitAll()
+            
+            // Secure all other actuator endpoints, requiring ADMIN role
+            .requestMatchers("/actuator/**").hasRole("ADMIN")
+
+            // All other requests must be authenticated
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
+```
+> **Important:** The order of the .requestMatchers() rules matters. More specific rules (/actuator/prometheus) must come before more general rules (/actuator/**).
+
+### Step 4: Verifying the Setup
+Run your Spring Boot application. You can verify that the endpoints are working correctly.
+
+1. Check Health:
+- Navigate to http://localhost:8080/actuator/health
+- You should see a simple response like: {"status":"UP"}
+
+> Note: Since **/actuator/health** requires authentication with the role ADMIN, you’ll need to:
+- First obtain a JWT access token from your login endpoint (with POST /api/v1/auth/login with username/password). Then call the actuator endpoint with the token in the Authorization header.
+
+```
+ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin1", "password": "admin_password1"}' \
+  | jq -r '.jwtToken')
+```
+
+Call the /actuator/health:
+```
+curl -X GET http://localhost:8080/actuator/health -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
+```
+
+2. Check Prometheus Metrics:
+- Navigate to http://localhost:8080/actuator/prometheus
+- You will see a large plain text response. This is the metrics data that Prometheus will read.
+
+### Step 5: Configure Prometheus 
+You would now configure your Prometheus server to "scrape" this endpoint. In your Prometheus configuration file (prometheus.yml), you would add a job like this:
+```
+scrape_configs:
+  - job_name: 'brokerage_api'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:8080'] # Or the IP/DNS of your deployed application
+```
+> Note: 
+- On Linux, replace host.docker.internal with your machine’s IP (e.g., 172.17.0.1).
+- On Mac/Windows, host.docker.internal works fine.
+
+Prometheus will automatically fetch the metrics from your application every 15 seconds. From there, you can use tools like Grafana to connect to Prometheus as a data source and build powerful dashboards to visualize your application's performance over time.
+
+### Step 6: Run Prometheus Docker Image
+- Mount prometheus.yml config into the container.
+- By default, it exposes the web UI and metrics at port 9090.
+
+
+```
+docker run -d --name prometheus \
+  -p 9090:9090 \
+  -v $(pwd)/stock-orders/src/main/resources/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml \
+  bitnami/prometheus:latest
+```
+You can then open http://localhost:9090 in your browser.

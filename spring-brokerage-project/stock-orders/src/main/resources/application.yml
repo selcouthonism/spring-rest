@@ -3,3 +3,25 @@ application:
     jwt:
       secret-key: "6bf78d0685874619c016b0e9d9a1477365b29662bd76bf0d545e31723f18a1c3" #"your-secret-key" HMAC256
       expiration-ms: 86400000
+
+# Management Endpoints Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose specific endpoints. Be deliberate about what you expose.
+        # 'prometheus' is needed for the monitoring system.
+        # 'health' and 'info' are generally safe and useful.
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      # Show full health details (e.g., database status) when authenticated.
+      # Defaults to 'never' show details. 'when-authorized' is a good choice.
+      show-details: when-authorized
+
+# Custom application info for the /actuator/info endpoint
+info:
+  application:
+    name: Brokerage Trading API
+    description: API for managing customer stock orders.
+    version: 1.0.0

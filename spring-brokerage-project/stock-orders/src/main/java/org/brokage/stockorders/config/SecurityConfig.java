@@ -30,7 +30,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll() // Whitelist auth endpoints
+
+                        // Public endpoints for authentication and API docs
+                        .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // Allow the Prometheus server to scrape metrics without authentication
+                        .requestMatchers("/actuator/prometheus").permitAll()
+
+                        // Secure all other actuator endpoints, requiring an ADMIN role
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+
+                        // All other requests must be authenticated
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Use stateless sessions
