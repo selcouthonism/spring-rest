@@ -264,8 +264,13 @@ curl -X PUT "http://localhost:8080/api/v1/admin/orders/5/match" -H "Authorizatio
 ### Technical Stack
 
 #### Language & Platform
-- Java 17+ – Leveraging the latest Spring Boot 3+ features and modern Java syntax.
-- Spring Boot 3 – Simplified configuration, dependency injection, and embedded server support.
+- Java 21 – Leveraging the latest Spring Boot 3+ features and modern Java syntax.
+- Spring Boot 3 (3.5.5) – Simplified configuration, dependency injection, and embedded server support.
+
+> Note: Spring Boot doesn’t enable virtual threads by default (as of 3.2.x), but you can configure it with: 
+```
+spring.threads.virtual.enabled=true
+```
 
 #### Frameworks & Libraries
 Spring Framework Modules
