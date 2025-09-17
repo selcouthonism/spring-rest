@@ -58,4 +58,17 @@ public class UserCredentials {
     public static UserCredentials of(Long customerId, String username, String password, Role role, boolean active) {
         return new UserCredentials(customerId, username, password, role, active);
     }
+
+    @Override
+    public String toString() {
+        return "UserCredentials{" +
+                "id=" + id +
+                ", customerId=" + customerId +
+                ", username='" + username + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", role=" + role +
+                ", createDate=" + createDate +
+                ", active=" + active +
+                '}';
+    }
 }

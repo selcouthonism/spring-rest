@@ -27,7 +27,7 @@ public class LoadDatabase {
 
     @Bean
     //@Profile("test")
-    CommandLineRunner initDatabase(CustomerRepository customerRepository, AssetRepository assetRepository, OrderRepository orderRepository, UserCredentialRepository credentialRepository) {
+    CommandLineRunner initDatabase(CustomerRepository customerRepository, AssetRepository assetRepository, OrderRepository orderRepository, UserCredentialRepository credentialRepository, UserCredentialRepository userCredentialRepository) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return args -> {
@@ -60,8 +60,8 @@ public class LoadDatabase {
 
             orderRepository.saveAll(List.of(order1, order2));
 
-            customerRepository.findAll().forEach(customer -> {
-                log.info("Preloaded " + customer);
+            userCredentialRepository.findAll().forEach(credentials -> {
+                log.info("Preloaded " + credentials);
             });
         };
     }

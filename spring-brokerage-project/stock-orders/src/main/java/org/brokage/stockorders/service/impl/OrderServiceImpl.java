@@ -157,6 +157,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    // Note: The following method only implemented for demo purposes.
+    // The exception message gives information about system and creates a vulnerability.
     private void validateCustomerAccess(Order order, Long customerId) {
         // Security Check: Ensure the customer owns this order
         if (!order.getCustomer().getId().equals(customerId)) {

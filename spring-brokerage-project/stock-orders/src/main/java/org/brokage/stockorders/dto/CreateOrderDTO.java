@@ -24,6 +24,7 @@ public record CreateOrderDTO(
         BigDecimal size,
 
         @NotNull(message = "Price cannot be null")
-        @DecimalMin(value = "0.01", message = "Price must be positive")
+        @Positive(message = "Price must be greater than zero")
+        //@DecimalMin(value = "0.01", message = "Price must be positive") // Stock price might be pretty small like 0.00001
         BigDecimal price
 ) {}
