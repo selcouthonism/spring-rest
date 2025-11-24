@@ -1,6 +1,6 @@
 package org.brokage.stockorders.adapter.out.persistence.repository;
 
-import org.brokage.stockorders.exceptions.ResourceNotFoundException;
+import org.brokage.stockorders.application.exception.ResourceNotFoundException;
 import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
 import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
 import org.brokage.stockorders.application.port.out.AssetRepository;

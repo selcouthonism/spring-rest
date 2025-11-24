@@ -2,8 +2,8 @@ package org.brokage.stockorders.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.adapter.in.web.dto.AssetDTO;
-import org.brokage.stockorders.exceptions.ResourceNotFoundException;
-import org.brokage.stockorders.exceptions.UnallowedAccessException;
+import org.brokage.stockorders.application.exception.ResourceNotFoundException;
+import org.brokage.stockorders.application.exception.UnallowedAccessException;
 import org.brokage.stockorders.mapper.AssetMapper;
 import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
 import org.brokage.stockorders.adapter.out.persistence.jpa.JpaAssetRepository;

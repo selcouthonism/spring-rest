@@ -3,7 +3,7 @@ package org.brokage.stockorders.domain.model.order;
 import jakarta.validation.ValidationException;
 import lombok.Getter;
 import lombok.Setter;
-import org.brokage.stockorders.exceptions.OperationNotPermittedException;
+import org.brokage.stockorders.application.exception.OperationNotPermittedException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -1,4 +1,4 @@
-package org.brokage.stockorders.exceptions;
+package org.brokage.stockorders.application.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

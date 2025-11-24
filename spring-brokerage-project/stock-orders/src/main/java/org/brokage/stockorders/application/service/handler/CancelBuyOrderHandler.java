@@ -1,7 +1,7 @@
 package org.brokage.stockorders.application.service.handler;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.exceptions.OperationNotPermittedException;
+import org.brokage.stockorders.application.exception.OperationNotPermittedException;
 import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
 import org.brokage.stockorders.adapter.out.persistence.entity.Order;
 import org.brokage.stockorders.domain.model.order.OrderSide;

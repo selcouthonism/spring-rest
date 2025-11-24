@@ -1,6 +1,8 @@
-package org.brokage.stockorders.exceptions;
+package org.brokage.stockorders.adapter.in.web.exception;
 
 import jakarta.validation.ValidationException;
+import org.brokage.stockorders.application.exception.AppException;
+import org.brokage.stockorders.domain.exception.DomainException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.MediaTypes;
@@ -52,6 +54,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<Problem> handleAppExceptions(AppException ex) {
+        return buildProblem(ex.getTitle(), ex.getMessage(), ex.getStatus(), ex);
+    }
+
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<Problem> handleDomainExceptions(AppException ex) {
         return buildProblem(ex.getTitle(), ex.getMessage(), ex.getStatus(), ex);
     }
 
