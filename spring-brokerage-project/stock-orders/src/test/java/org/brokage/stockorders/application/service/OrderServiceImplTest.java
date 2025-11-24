@@ -72,7 +72,7 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_sell_shouldReserveAssetAndReturnDto() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(10), new BigDecimal(10));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
 
         Order order = Order.create(customer, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
         OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.PENDING, null);
@@ -102,7 +102,7 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_buy_shouldReserveAssetAndReturnDto() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "BUY", new BigDecimal(10), new BigDecimal(10));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", OrderSide.BUY, new BigDecimal(10), new BigDecimal(10));
 
         Order order = Order.create(customer, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
         OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.PENDING, null);
@@ -132,7 +132,7 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_sell_insufficientAsset_shouldThrow() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(200), new BigDecimal(10));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", OrderSide.SELL, new BigDecimal(200), new BigDecimal(10));
 
         when(customerRepository.findByIdOrThrow(1L)).thenReturn(customer);
         //when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
@@ -144,7 +144,7 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_buy_insufficientAsset_shouldThrow() {
-        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "BUY", new BigDecimal(2000), new BigDecimal(10));
+        CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", OrderSide.BUY, new BigDecimal(2000), new BigDecimal(10));
 
         when(customerRepository.findByIdOrThrow(1L)).thenReturn(customer);
         //when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
