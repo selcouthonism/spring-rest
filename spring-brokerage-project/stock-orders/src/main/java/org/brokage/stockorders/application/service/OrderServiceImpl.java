@@ -44,8 +44,8 @@ public class OrderServiceImpl implements OrderService {
 
         Customer customer = customerRepository.findByIdOrThrow(customerId);
 
-        OrderSide orderSide = OrderSide.valueOf(request.orderSide().toUpperCase());
-        //OrderSide orderSide = request.orderSide();
+        //OrderSide orderSide = OrderSide.valueOf(request.orderSide().toUpperCase());
+        OrderSide orderSide = request.orderSide();
         orderHandlerFactory.getHandler(OrderAction.CREATE, orderSide).handle(request);
 
         Order newOrder = Order.create(customer, request.assetName(), orderSide, request.size(), request.price());

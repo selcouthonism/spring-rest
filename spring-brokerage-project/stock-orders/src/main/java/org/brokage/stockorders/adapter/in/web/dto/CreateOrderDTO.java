@@ -3,7 +3,6 @@ package org.brokage.stockorders.adapter.in.web.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import org.brokage.stockorders.domain.model.order.OrderSide;
-import org.brokage.stockorders.utility.ValidEnum;
 
 import java.math.BigDecimal;
 
@@ -16,9 +15,9 @@ public record CreateOrderDTO(
         String assetName,
 
         @NotNull(message = "Order side must be specified")
-        @ValidEnum(enumClass = OrderSide.class, message = "Order side must be BUY or SELL")
-        //OrderSide orderSide,
-        String orderSide,
+        //@ValidEnum(enumClass = OrderSide.class, message = "Order side must be BUY or SELL")
+        //String orderSide,
+        OrderSide orderSide,
 
         @NotNull(message = "Size is required")
         @Positive(message = "Size must be greater than zero")

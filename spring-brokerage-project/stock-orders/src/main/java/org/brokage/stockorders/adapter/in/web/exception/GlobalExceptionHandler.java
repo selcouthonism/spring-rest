@@ -1,5 +1,6 @@
 package org.brokage.stockorders.adapter.in.web.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ValidationException;
 import org.brokage.stockorders.application.exception.AppException;
 import org.brokage.stockorders.domain.exception.DomainException;
@@ -94,11 +95,37 @@ public class GlobalExceptionHandler {
         return buildProblem("Invalid request parameter", errors.toString(), HttpStatus.BAD_REQUEST, ex);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
 
+        if (cause instanceof InvalidFormatException invalidFormatEx) {
+            Map<String, String> errors = new HashMap<>();
+
+            String field = invalidFormatEx.getPath().get(0).getFieldName();
+            Class<?> targetType = invalidFormatEx.getTargetType();
+            String allowedValues = targetType.isEnum() ?
+                    Arrays.stream(targetType.getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", "))
+                    : "unknown";
+
+            errors.put(field, "Invalid value. Allowed values: " + allowedValues);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+
+        // fallback for other malformed JSON
+        Map<String, String> fallback = Map.of("error", "Malformed JSON request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(fallback);
+    }
+
+
+    /*
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Problem> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return buildProblem("Message Not Readable error", "Malformed JSON request", HttpStatus.BAD_REQUEST, ex);
     }
+     */
 
 
     // 🔹 Security
