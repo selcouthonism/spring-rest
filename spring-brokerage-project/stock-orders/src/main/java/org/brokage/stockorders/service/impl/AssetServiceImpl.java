@@ -6,7 +6,7 @@ import org.brokage.stockorders.exceptions.ResourceNotFoundException;
 import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.AssetMapper;
 import org.brokage.stockorders.model.entity.Asset;
-import org.brokage.stockorders.repository.jpa.AssetJpaRepository;
+import org.brokage.stockorders.repository.jpa.JpaAssetRepository;
 import org.brokage.stockorders.repository.specification.AssetSpecifications;
 import org.brokage.stockorders.service.AssetService;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssetServiceImpl implements AssetService {
 
-    private final AssetJpaRepository assetJpaRepository;
+    private final JpaAssetRepository jpaAssetRepository;
     private final AssetMapper assetMapper;
 
     /**
@@ -54,13 +54,13 @@ public class AssetServiceImpl implements AssetService {
                 AssetSpecifications.hasAssetName(assetName)
         );
 
-        return assetJpaRepository.findAll(spec).stream()
+        return jpaAssetRepository.findAll(spec).stream()
                 .map(assetMapper::toDto)
                 .toList();
     }
 
     private Asset findAssetById(Long assetId) {
-        return assetJpaRepository.findById(assetId)
+        return jpaAssetRepository.findById(assetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found for ID:" + assetId));
     }
 }

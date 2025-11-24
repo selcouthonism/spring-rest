@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface AssetJpaRepository extends JpaRepository<Asset, Long>, JpaSpecificationExecutor<Asset> {
+public interface JpaAssetRepository extends JpaRepository<Asset, Long>, JpaSpecificationExecutor<Asset> {
 
     Optional<Asset> findByAssetNameAndCustomerId(String assetName, Long customerId);
 

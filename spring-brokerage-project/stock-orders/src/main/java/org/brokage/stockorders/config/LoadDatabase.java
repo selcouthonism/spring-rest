@@ -6,10 +6,10 @@ import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.model.enums.Role;
-import org.brokage.stockorders.repository.jpa.AssetJpaRepository;
-import org.brokage.stockorders.repository.jpa.CustomerJpaRepository;
-import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
-import org.brokage.stockorders.repository.jpa.UserCredentialJpaRepository;
+import org.brokage.stockorders.repository.jpa.JpaAssetRepository;
+import org.brokage.stockorders.repository.jpa.JpaCustomerRepository;
+import org.brokage.stockorders.repository.jpa.JpaOrderRepository;
+import org.brokage.stockorders.repository.jpa.JpaUserCredentialRepository;
 import org.brokage.stockorders.security.UserCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +27,15 @@ public class LoadDatabase {
 
     @Bean
     //@Profile("test")
-    CommandLineRunner initDatabase(CustomerJpaRepository customerJpaRepository, AssetJpaRepository assetJpaRepository, OrderJpaRepository orderJpaRepository, UserCredentialJpaRepository credentialRepository, UserCredentialJpaRepository userCredentialJpaRepository) {
+    CommandLineRunner initDatabase(JpaCustomerRepository jpaCustomerRepository, JpaAssetRepository jpaAssetRepository, JpaOrderRepository jpaOrderRepository, JpaUserCredentialRepository credentialRepository, JpaUserCredentialRepository jpaUserCredentialRepository) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return args -> {
 
-            Customer customer1 = customerJpaRepository.save(Customer.of("customer1FN", "lastName1"));
-            Customer customer2 = customerJpaRepository.save(Customer.of("customer2FN", "lastName1"));
-            Customer customer3 = customerJpaRepository.save(Customer.of("customer3FN", "lastName1"));
-            Customer admin1 = customerJpaRepository.save(Customer.of("admin1FN", "lastName1"));
+            Customer customer1 = jpaCustomerRepository.save(Customer.of("customer1FN", "lastName1"));
+            Customer customer2 = jpaCustomerRepository.save(Customer.of("customer2FN", "lastName1"));
+            Customer customer3 = jpaCustomerRepository.save(Customer.of("customer3FN", "lastName1"));
+            Customer admin1 = jpaCustomerRepository.save(Customer.of("admin1FN", "lastName1"));
 
             credentialRepository.save(UserCredentials.of(customer1.getId(), "customer1", encoder.encode("password1"), Role.CUSTOMER, true));
             credentialRepository.save(UserCredentials.of(customer2.getId(), "customer2", encoder.encode("password2"), Role.CUSTOMER, true));
@@ -43,13 +43,13 @@ public class LoadDatabase {
             credentialRepository.save(UserCredentials.of(admin1.getId(), "admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
 
             //Every customer has 10000 TRY as an asset
-            assetJpaRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
-            assetJpaRepository.save(new Asset(customer2, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
-            assetJpaRepository.save(new Asset(customer3, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new Asset(customer2, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new Asset(customer3, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
 
-            assetJpaRepository.save(new Asset(customer1, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
-            assetJpaRepository.save(new Asset(customer2, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
-            assetJpaRepository.save(new Asset(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new Asset(customer1, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new Asset(customer2, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new Asset(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
 
 
             Order order1 = Order.create(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
@@ -58,9 +58,9 @@ public class LoadDatabase {
             Order order2 = Order.create(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
             order2.setStatus(OrderStatus.CANCELED);
 
-            orderJpaRepository.saveAll(List.of(order1, order2));
+            jpaOrderRepository.saveAll(List.of(order1, order2));
 
-            userCredentialJpaRepository.findAll().forEach(credentials -> {
+            jpaUserCredentialRepository.findAll().forEach(credentials -> {
                 log.info("Preloaded " + credentials);
             });
         };

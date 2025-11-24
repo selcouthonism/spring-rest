@@ -11,7 +11,7 @@ import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.repository.AssetRepository;
 import org.brokage.stockorders.repository.CustomerRepository;
-import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
+import org.brokage.stockorders.repository.jpa.JpaOrderRepository;
 import org.brokage.stockorders.service.factory.OrderHandlerFactory;
 import org.brokage.stockorders.service.handler.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 class OrderServiceImplTest {
 
-    @Mock private OrderJpaRepository orderJpaRepository;
+    @Mock private JpaOrderRepository jpaOrderRepository;
     @Mock private OrderHandlerFactory orderHandlerFactory;
     @Mock private OrderMapper orderMapper;
 
@@ -80,7 +80,7 @@ class OrderServiceImplTest {
         when(customerRepository.findByIdOrThrow(1L)).thenReturn(customer);
         //when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
         when(assetRepository.lockAssetForCustomer( "AAPL", customer.getId())).thenReturn(asset);
-        when(orderJpaRepository.save(any(Order.class))).thenReturn(order);
+        when(jpaOrderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.SELL)).thenReturn(new CreateSellOrderHandler(assetRepository));
 
@@ -94,7 +94,7 @@ class OrderServiceImplTest {
 
         // Verify order saved
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
-        verify(orderJpaRepository).save(orderCaptor.capture());
+        verify(jpaOrderRepository).save(orderCaptor.capture());
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo(OrderStatus.PENDING);
 
         assertThat(result).isEqualTo(dto);
@@ -110,7 +110,7 @@ class OrderServiceImplTest {
         when(customerRepository.findByIdOrThrow(1L)).thenReturn(customer);
         //when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
         when(assetRepository.lockAssetForCustomer( "TRY", customer.getId())).thenReturn(tryAsset);
-        when(orderJpaRepository.save(any(Order.class))).thenReturn(order);
+        when(jpaOrderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.BUY)).thenReturn(new CreateBuyOrderHandler(assetRepository));
 
@@ -124,7 +124,7 @@ class OrderServiceImplTest {
 
         // Verify order saved
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
-        verify(orderJpaRepository).save(orderCaptor.capture());
+        verify(jpaOrderRepository).save(orderCaptor.capture());
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo(OrderStatus.PENDING);
 
         assertThat(result).isEqualTo(dto);
@@ -166,10 +166,10 @@ class OrderServiceImplTest {
 
         OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10), OrderStatus.CANCELED, null);
 
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
         //when(assetRepository.findByCustomerIdAndAssetNameForUpdate(customer.getId(), "AAPL")).thenReturn(Optional.of(asset));
         when(assetRepository.lockAssetForCustomer("AAPL", customer.getId())).thenReturn(asset);
-        when(orderJpaRepository.save(any(Order.class))).thenReturn(order);
+        when(jpaOrderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetRepository));
 
@@ -192,7 +192,7 @@ class OrderServiceImplTest {
         order.setId(1L);
         order.setStatus(OrderStatus.CANCELED);
 
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetRepository));
 
         assertThrows(OperationNotPermittedException.class, () -> orderService.cancel(1L, customer.getId()));
@@ -204,7 +204,7 @@ class OrderServiceImplTest {
         order.setId(1L);
         order.setStatus(OrderStatus.CANCELED);
 
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.BUY)).thenReturn(new CancelSellOrderHandler(assetRepository));
 
         assertThrows(OperationNotPermittedException.class, () -> orderService.cancel(1L, customer.getId()));
@@ -219,8 +219,8 @@ class OrderServiceImplTest {
 
         when(assetRepository.lockAssetForCustomer("TRY", customer.getId())).thenReturn(tryAsset);
         when(assetRepository.lockAssetForCustomer("AAPL", customer.getId())).thenReturn(asset);
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(orderJpaRepository.save(order)).thenReturn(order);
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.save(order)).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.MATCH, OrderSide.SELL)).thenReturn(new MatchSellOrderHandler(assetRepository));
 
@@ -250,8 +250,8 @@ class OrderServiceImplTest {
         when(assetRepository.lockAssetForCustomer("TRY", customer.getId())).thenReturn(tryAsset);
         //when(assetFinder.findAssetForCustomerOrThrow(customer.getId(), "AAPL")).thenReturn(asset);
         when(assetRepository.findOrCreateAssetForUpdate( "AAPL", customer)).thenReturn(asset);
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(orderJpaRepository.save(order)).thenReturn(order);
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.save(order)).thenReturn(order);
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.MATCH, OrderSide.BUY)).thenReturn(new MatchBuyOrderHandler(assetRepository));
 
@@ -277,7 +277,7 @@ class OrderServiceImplTest {
         order.setOrderSide(OrderSide.SELL);
         order.setStatus(OrderStatus.CANCELED);
 
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.MATCH, OrderSide.SELL)).thenReturn(new MatchSellOrderHandler(assetRepository));
 
         assertThrows(OperationNotPermittedException.class, () -> orderService.matchOrder(1L));
@@ -289,7 +289,7 @@ class OrderServiceImplTest {
         order.setOrderSide(OrderSide.BUY);
         order.setStatus(OrderStatus.CANCELED);
 
-        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(jpaOrderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.MATCH, OrderSide.BUY)).thenReturn(new MatchBuyOrderHandler(assetRepository));
 
         assertThrows(OperationNotPermittedException.class, () -> orderService.matchOrder(1L));

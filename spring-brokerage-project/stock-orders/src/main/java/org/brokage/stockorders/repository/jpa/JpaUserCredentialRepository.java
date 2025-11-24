@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserCredentialJpaRepository extends JpaRepository<UserCredentials, Long> {
+public interface JpaUserCredentialRepository extends JpaRepository<UserCredentials, Long> {
 
     /**
      * Finds a user credentials by their unique username.

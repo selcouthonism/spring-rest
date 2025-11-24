@@ -10,7 +10,7 @@ import org.brokage.stockorders.repository.specification.OrderSpecifications;
 import org.brokage.stockorders.service.OrderService;
 import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
-import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
+import org.brokage.stockorders.repository.jpa.JpaOrderRepository;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.exceptions.ResourceNotFoundException;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderJpaRepository orderJpaRepository;
+    private final JpaOrderRepository jpaOrderRepository;
     private final OrderMapper orderMapper;
     private final CustomerRepository  customerRepository;
 
@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
         orderHandlerFactory.getHandler(OrderAction.CREATE, orderSide).handle(request);
 
         Order newOrder = Order.create(customer, request.assetName(), orderSide, request.size(), request.price());
-        Order savedOrder = orderJpaRepository.save(newOrder);
+        Order savedOrder = jpaOrderRepository.save(newOrder);
         return orderMapper.toDto(savedOrder);
     }
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
                 OrderSpecifications.hasStatus(orderStatus)
         );
 
-        return orderJpaRepository.findAll(spec).stream()
+        return jpaOrderRepository.findAll(spec).stream()
                 .map(orderMapper::toDto)
                 .toList();
     }
@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
         orderHandlerFactory.getHandler(OrderAction.CANCEL, order.getOrderSide()).handle(order);
 
         order.setStatus(OrderStatus.CANCELED);
-        orderJpaRepository.save(order);
+        jpaOrderRepository.save(order);
 
         return orderMapper.toDto(order);
     }
@@ -106,14 +106,14 @@ public class OrderServiceImpl implements OrderService {
         orderHandlerFactory.getHandler(OrderAction.MATCH, order.getOrderSide()).handle(order);
 
         order.setStatus(OrderStatus.MATCHED);
-        orderJpaRepository.save(order);
+        jpaOrderRepository.save(order);
 
         return orderMapper.toDto(order);
     }
 
     //Utility
     private Order findOrderById(Long orderId) {
-        return orderJpaRepository.findById(orderId)
+        return jpaOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for ID:" + orderId));
     }
 
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public boolean isOrderOwnedByCustomer(Long orderId, Long customerId) {
-        return orderJpaRepository.existsByIdAndCustomerId(orderId, customerId);
+        return jpaOrderRepository.existsByIdAndCustomerId(orderId, customerId);
     }
 
 }
