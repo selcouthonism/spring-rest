@@ -60,4 +60,8 @@ public class Asset {
     public boolean isUsableSizeValid() {
         return usableSize == null || size == null || usableSize.compareTo(size) <= 0;
     }
+
+    public void releaseFunds(BigDecimal amount){
+        setUsableSize(getUsableSize().add(amount));
+    }
 }

@@ -4,8 +4,8 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.repository.jpa.CustomerRepository;
-import org.brokage.stockorders.repository.jpa.OrderRepository;
+import org.brokage.stockorders.repository.jpa.CustomerJpaRepository;
+import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +18,19 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-class OrderRepositoryTest {
+class OrderJpaRepositoryTest {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderJpaRepository orderJpaRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerJpaRepository customerJpaRepository;
 
     private Customer customer;
 
     @BeforeEach
     void setUp() {
-        customer = customerRepository.save(Customer.of("testUser", "lastname"));
+        customer = customerJpaRepository.save(Customer.of("testUser", "lastname"));
     }
 
     @Test
@@ -44,9 +44,9 @@ class OrderRepositoryTest {
         order.setStatus(OrderStatus.PENDING);
         order.setCreateDate(Instant.now());
 
-        Order saved = orderRepository.save(order);
+        Order saved = orderJpaRepository.save(order);
 
-        Order found = orderRepository.findById(saved.getId()).orElseThrow();
+        Order found = orderJpaRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getAssetName()).isEqualTo("AAPL");
         assertThat(found.getStatus()).isEqualTo(OrderStatus.PENDING);
@@ -63,7 +63,7 @@ class OrderRepositoryTest {
         order1.setPrice(new BigDecimal("100"));
         order1.setStatus(OrderStatus.PENDING);
         order1.setCreateDate(Instant.now());
-        orderRepository.save(order1);
+        orderJpaRepository.save(order1);
 
         Order order2 = new Order();
         order2.setCustomer(customer);
@@ -73,13 +73,13 @@ class OrderRepositoryTest {
         order2.setPrice(new BigDecimal("200"));
         order2.setStatus(OrderStatus.MATCHED);
         order2.setCreateDate(Instant.now());
-        orderRepository.save(order2);
+        orderJpaRepository.save(order2);
 
         // Example: use JpaSpecificationExecutor to filter by status
         var spec = (org.springframework.data.jpa.domain.Specification<Order>) (root, query, cb) ->
                 cb.equal(root.get("status"), OrderStatus.PENDING);
 
-        List<Order> filtered = orderRepository.findAll(spec);
+        List<Order> filtered = orderJpaRepository.findAll(spec);
 
         assertThat(filtered).hasSize(1);
         assertThat(filtered.get(0).getAssetName()).isEqualTo("AAPL");

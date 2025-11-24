@@ -6,15 +6,13 @@ import org.brokage.stockorders.model.entity.Asset;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.repository.jpa.AssetRepository;
-import org.brokage.stockorders.service.AssetFinder;
+import org.brokage.stockorders.repository.AssetRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class CancelSellOrderHandler implements OrderActionHandler<Order> {
 
-    private final AssetFinder assetFinder;
     private final AssetRepository assetRepository;
 
     @Override
@@ -25,10 +23,9 @@ public class CancelSellOrderHandler implements OrderActionHandler<Order> {
         }
 
         // Restore usable shares
-        Asset asset = assetFinder.findAssetForCustomerOrThrow(order.getCustomer().getId(), order.getAssetName());
+        Asset asset = assetRepository.lockAssetForCustomer(order.getAssetName(), order.getCustomer().getId());
 
         asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
-        assetRepository.save(asset);
     }
 
     @Override

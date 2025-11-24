@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserCredentialRepository extends JpaRepository<UserCredentials, Long> {
+public interface UserCredentialJpaRepository extends JpaRepository<UserCredentials, Long> {
 
     /**
      * Finds a user credentials by their unique username.
@@ -15,6 +15,4 @@ public interface UserCredentialRepository extends JpaRepository<UserCredentials,
      * @return an Optional containing the customer if found.
      */
     Optional<UserCredentials> findByUsername(String username);
-
-    boolean existsByUsername(String username);
 }

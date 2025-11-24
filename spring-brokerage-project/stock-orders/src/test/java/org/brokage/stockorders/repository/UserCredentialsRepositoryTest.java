@@ -1,8 +1,8 @@
 package org.brokage.stockorders.repository;
 
 import org.brokage.stockorders.model.entity.Customer;
-import org.brokage.stockorders.repository.jpa.CustomerRepository;
-import org.brokage.stockorders.repository.jpa.UserCredentialRepository;
+import org.brokage.stockorders.repository.jpa.CustomerJpaRepository;
+import org.brokage.stockorders.repository.jpa.UserCredentialJpaRepository;
 import org.brokage.stockorders.security.UserCredentials;
 import org.brokage.stockorders.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,16 +17,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserCredentialsRepositoryTest {
 
     @Autowired
-    private UserCredentialRepository credentialRepository;
+    private UserCredentialJpaRepository credentialRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerJpaRepository customerJpaRepository;
 
     private Customer customer;
 
     @BeforeEach
     void setUp() {
-        customer = customerRepository.save(Customer.of("testUser", "lastName"));
+        customer = customerJpaRepository.save(Customer.of("testUser", "lastName"));
     }
 
     @Test

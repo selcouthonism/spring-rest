@@ -17,6 +17,7 @@ public record CreateOrderDTO(
 
         @NotNull(message = "Order side must be specified")
         @ValidEnum(enumClass = OrderSide.class, message = "Order side must be BUY or SELL")
+        //OrderSide orderSide,
         String orderSide,
 
         @NotNull(message = "Size is required")

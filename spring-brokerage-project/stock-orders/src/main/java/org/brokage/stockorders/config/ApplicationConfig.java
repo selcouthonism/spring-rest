@@ -1,7 +1,7 @@
 package org.brokage.stockorders.config;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.repository.jpa.UserCredentialRepository;
+import org.brokage.stockorders.repository.jpa.UserCredentialJpaRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
     @Bean
-    public UserDetailsService userDetailsService(UserCredentialRepository credentialRepository) {
+    public UserDetailsService userDetailsService(UserCredentialJpaRepository credentialRepository) {
         return username -> credentialRepository.findByUsername(username)
                 .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));

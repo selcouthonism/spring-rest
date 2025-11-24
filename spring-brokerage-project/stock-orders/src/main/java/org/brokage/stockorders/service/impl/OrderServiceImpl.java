@@ -1,18 +1,16 @@
 package org.brokage.stockorders.service.impl;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.dto.CreateOrderDTO;
 import org.brokage.stockorders.dto.OrderDTO;
-import org.brokage.stockorders.exceptions.OperationNotPermittedException;
 import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.OrderMapper;
+import org.brokage.stockorders.repository.CustomerRepository;
 import org.brokage.stockorders.repository.specification.OrderSpecifications;
 import org.brokage.stockorders.service.OrderService;
 import org.brokage.stockorders.model.entity.Customer;
-import org.brokage.stockorders.repository.jpa.CustomerRepository;
 import org.brokage.stockorders.model.entity.Order;
-import org.brokage.stockorders.repository.jpa.OrderRepository;
+import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.exceptions.ResourceNotFoundException;
@@ -22,7 +20,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -30,9 +27,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
+    private final OrderJpaRepository orderJpaRepository;
     private final OrderMapper orderMapper;
+    private final CustomerRepository  customerRepository;
 
     private final OrderHandlerFactory orderHandlerFactory; // Injected factory
 
@@ -45,17 +42,14 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO create(CreateOrderDTO request) {
         final Long customerId = request.customerId();
 
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
-
-        validateOrder(request, customer);
+        Customer customer = customerRepository.findByIdOrThrow(customerId);
 
         OrderSide orderSide = OrderSide.valueOf(request.orderSide().toUpperCase());
-
+        //OrderSide orderSide = request.orderSide();
         orderHandlerFactory.getHandler(OrderAction.CREATE, orderSide).handle(request);
 
         Order newOrder = Order.create(customer, request.assetName(), orderSide, request.size(), request.price());
-        Order savedOrder = orderRepository.save(newOrder);
+        Order savedOrder = orderJpaRepository.save(newOrder);
         return orderMapper.toDto(savedOrder);
     }
 
@@ -86,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
                 OrderSpecifications.hasStatus(orderStatus)
         );
 
-        return orderRepository.findAll(spec).stream()
+        return orderJpaRepository.findAll(spec).stream()
                 .map(orderMapper::toDto)
                 .toList();
     }
@@ -100,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
         orderHandlerFactory.getHandler(OrderAction.CANCEL, order.getOrderSide()).handle(order);
 
         order.setStatus(OrderStatus.CANCELED);
-        orderRepository.save(order);
+        orderJpaRepository.save(order);
 
         return orderMapper.toDto(order);
     }
@@ -112,30 +106,15 @@ public class OrderServiceImpl implements OrderService {
         orderHandlerFactory.getHandler(OrderAction.MATCH, order.getOrderSide()).handle(order);
 
         order.setStatus(OrderStatus.MATCHED);
-        orderRepository.save(order);
+        orderJpaRepository.save(order);
 
         return orderMapper.toDto(order);
     }
 
     //Utility
     private Order findOrderById(Long orderId) {
-        return orderRepository.findById(orderId)
+        return orderJpaRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for ID:" + orderId));
-    }
-
-    private void validateOrder(CreateOrderDTO request, Customer customer) {
-        // Security Check: Ensure the customer owns this order
-        if (!request.customerId().equals(customer.getId())) {
-            throw new ValidationException("Invalid customer id.");
-        }
-
-        if(request.assetName().equals("TRY")) {
-            throw new OperationNotPermittedException("Cannot buy or sell TRY assets.");
-        }
-
-        if (request.size().compareTo(BigDecimal.ZERO) <= 0 || request.price().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("Order size and price must be positive.");
-        }
     }
 
     // Note: The following method only implemented for demo purposes.
@@ -148,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public boolean isOrderOwnedByCustomer(Long orderId, Long customerId) {
-        return orderRepository.existsByIdAndCustomerId(orderId, customerId);
+        return orderJpaRepository.existsByIdAndCustomerId(orderId, customerId);
     }
 
 }

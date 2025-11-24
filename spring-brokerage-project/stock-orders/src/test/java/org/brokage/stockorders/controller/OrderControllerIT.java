@@ -5,9 +5,9 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.Role;
-import org.brokage.stockorders.repository.jpa.AssetRepository;
-import org.brokage.stockorders.repository.jpa.CustomerRepository;
-import org.brokage.stockorders.repository.jpa.OrderRepository;
+import org.brokage.stockorders.repository.jpa.AssetJpaRepository;
+import org.brokage.stockorders.repository.jpa.CustomerJpaRepository;
+import org.brokage.stockorders.repository.jpa.OrderJpaRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.security.UserCredentials;
@@ -39,13 +39,13 @@ class OrderControllerIT {
     private JwtService jwtService;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderJpaRepository orderJpaRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerJpaRepository customerJpaRepository;
 
     @Autowired
-    private AssetRepository assetRepository;
+    private AssetJpaRepository assetJpaRepository;
 
     private CustomUserDetails mockUser;
     private Long customerId;
@@ -55,13 +55,13 @@ class OrderControllerIT {
     void setUp() {
         // ensure test DB has a customer
         Customer customer = Customer.of("testUser", "lastName");
-        customerRepository.save(customer);
+        customerJpaRepository.save(customer);
         customerId = customer.getId();
 
         UserCredentials credential = UserCredentials.of(customer.getId(), "username", "password", Role.CUSTOMER, true);
         mockUser = new CustomUserDetails(credential);
 
-        assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
+        assetJpaRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
 
         // 🔑 generate token
         jwtToken = jwtService.generateToken(mockUser);
@@ -98,7 +98,7 @@ class OrderControllerIT {
     @Test
     void getOrder_shouldReturnOrder() throws Exception {
         // persist an order directly
-        Order order = orderRepository.save(Order.create(customerRepository.findById(customerId).get(),
+        Order order = orderJpaRepository.save(Order.create(customerJpaRepository.findById(customerId).get(),
                 "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200")
         ));
 
@@ -114,7 +114,7 @@ class OrderControllerIT {
 
     @Test
     void cancelOrder_shouldReturnNoContent() throws Exception {
-        Order order = orderRepository.save(Order.create(customerRepository.findById(customerId).get(),
+        Order order = orderJpaRepository.save(Order.create(customerJpaRepository.findById(customerId).get(),
                 "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150")
         ));
 
