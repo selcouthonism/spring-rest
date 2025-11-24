@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: stock-orders-web
+  threads:
+    virtual:
+      enabled: false
+
+# Management Endpoints Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose specific endpoints. Be deliberate about what you expose.
+        # 'prometheus' is needed for the monitoring system.
+        # 'health' and 'info' are generally safe and useful.
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      # Show full health details (e.g., database status) when authenticated.
+      # Defaults to 'never' show details. 'when-authorized' is a good choice.
+      show-details: when-authorized
+
+# Custom application info for the /actuator/info endpoint
+info:
+  application:
+    name: Brokerage API
+    description: API for managing customer stock orders.
+    version: 1.0.0
