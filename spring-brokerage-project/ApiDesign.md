@@ -96,11 +96,11 @@ Response Body: LoginResponse { jwtToken }
 Authorization: Public.
 
 ### b. Customer-Facing Endpoints
-These endpoints are for logged-in customers (ROLE_CUSTOMER). The customerId is always inferred from the JWT token, not passed as a parameter.
+These endpoints are for logged-in customers (ROLE_CUSTOMER). Admin can access (ROLE_ADMIN) all endpoints.
 
 #### Get Order
 
-Endpoint: GET /api/v1/orders/{orderId}
+Endpoint: GET /api/v1/customers/{customerId}/orders/{orderId}
 
 Description: Retrieves the order for given orderId.
 
@@ -110,7 +110,7 @@ Status Codes: 200 OK, 401 Unauthorized.
 
 #### Order Creation
 
-Endpoint: POST /api/v1/orders
+Endpoint: POST /api/v1/customers/{customerId}/orders
 
 Description: Creates a new stock order with PENDING status for the authenticated customer.
 
@@ -128,7 +128,7 @@ status Codes: 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden.
 
 #### List Orders
 
-Endpoint: GET /api/v1/orders
+Endpoint: GET /api/v1/customers/{customerId}/orders
 
 Description: Retrieves a list of all orders for the authenticated customer.
 
@@ -139,7 +139,7 @@ Response Body: List<OrderDTO>
 Status Codes: 200 OK, 401 Unauthorized.
 
 #### Delete Order
-Endpoint: DELETE /api/v1/orders/{orderId}
+Endpoint: DELETE /api/v1/customers/{customerId}/orders/{orderId}
 
 Description: Cancels a PENDING order belonging to the authenticated customer.
 
@@ -162,7 +162,7 @@ These endpoints require ROLE_ADMIN and allow employees to manage any customer's 
 
 #### Get Order
 
-Endpoint: GET /api/v1/admin/orders/{orderId}
+Endpoint: GET /api/v1/customers/{customerId}/orders/{orderId}
 
 Description: Retrieves the order for given orderId.
 
@@ -171,7 +171,7 @@ Response Body: OrderDTO
 Status Codes: 200 OK, 401 Unauthorized.
 
 #### Create Order for a Customer
-Endpoint: POST /api/v1/admin/orders
+Endpoint: POST /api/v1/customers/{customerId}/orders
 
 Description: Creates a new stock order for a specific customer.
 
@@ -183,19 +183,19 @@ Status Codes: 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden.
 
 #### List Orders for a Specific Customer
 
-Endpoint: GET /api/v1/admin/orders
+Endpoint: GET /api/v1/customers/{customerId}/orders
 
 Description: Retrieves all orders.
 
-Query Params: ?customerId=1&from=2025-01-01T00:00:44Z&to=2025-08-30T13:51:51Z&orderStatus=CANCELED (optional filtering).
+Query Params: ?from=2025-01-01T00:00:44Z&to=2025-08-30T13:51:51Z&orderStatus=CANCELED (optional filtering).
 
 Response Body: List<OrderDTO>
 
 Status Codes: 200 OK, 401 Unauthorized.
 
-#### Cancel Any Order
+#### Cancel Order
 
-Endpoint: DELETE /api/v1/admin/orders/{orderId}
+Endpoint: DELETE /api/v1/customers/{customerId}/orders/{orderId}
 
 Description: Cancels any PENDING order in the system.
 
@@ -222,9 +222,3 @@ Description: Retrieves the asset for the authenticated customer.
 Response Body: List<AssetDTO>
 
 Status Codes: 200 OK, 401 Unauthorized.
-
-
-## 5. Authentication & Authorization with JWTs
-> Note:
-- Security: JWT will be implemented. 
-- UserCredentials must be seperated from Customer table.

@@ -159,52 +159,52 @@ curl "http://localhost:8080/api/v1/assets?customerId=1&assetName=TRY" -H "Author
 ### Orders:
 
 #### Get Order (Customer)
-Endpoint: GET /api/v1/orders/{orderId}
+Endpoint: GET /api/v1/customers/{customerId}/orders/{orderId}
 
 Customer gets its own order.
 ```
-curl http://localhost:8080/api/v1/orders/1 -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+curl http://localhost:8080/api/v1/customers/1/orders/1 -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
 ```
 
 If a customer attempts to access another customer's order, the API will respond with HTTP 403 Forbidden.
 ```
-curl http://localhost:8080/api/v1/orders/2 -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+curl http://localhost:8080/api/v1/customers/2/orders/2 -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
 ```
 
 #### Get Order (Admin)
-Endpoint: GET /api/v1/admin/orders/{orderId}
+Endpoint: GET /api/v1/customers/{customerId}/orders/{orderId}
 ```
-curl http://localhost:8080/api/v1/admin/orders/2 -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
+curl http://localhost:8080/api/v1/customers/2/orders/2 -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
 ```
 
 ### List Orders (Customer)
-Endpoint: GET /api/v1/orders
+Endpoint: GET /api/v1/customers/{customerId}/orders
 ```
-curl http://localhost:8080/api/v1/orders -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+curl http://localhost:8080/api/v1/customers/1/orders -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+```
+
+With query parameters (Optional: from, to, orderStatus):
+```
+curl "http://localhost:8080/api/v1/customers/1/orders?from=2025-08-01T13:46:44Z&to=2025-12-30T13:51:51Z&orderStatus=CANCELED" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+```
+
+### List Orders for a Specific Customer (Admin)
+Endpoint: GET /api/v1/customers/{customerId}/orders
+```
+curl http://localhost:8080/api/v1/customers/1/orders -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
 ```
 
 With query parameters (Optional: customerId, from, to, orderStatus):
 ```
-curl "http://localhost:8080/api/v1/orders?customerId=1&from=2025-08-01T13:46:44Z&to=2025-12-30T13:51:51Z&orderStatus=CANCELED" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
-```
-
-### List Orders (Admin)
-Endpoint: GET /api/v1/admin/orders
-```
-curl http://localhost:8080/api/v1/admin/orders -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
-```
-
-With query parameters (Optional: customerId, from, to, orderStatus):
-```
-curl "http://localhost:8080/api/v1/admin/orders?customerId=1&from=2025-08-01T13:46:44Z&to=2025-12-30T13:51:51Z&orderStatus=CANCELED" -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
+curl "http://localhost:8080/api/v1/customers/1/orders?customerId=1&from=2025-08-01T13:46:44Z&to=2025-12-30T13:51:51Z&orderStatus=CANCELED" -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
 ```
 
 ### Create Order (Customer)
-Endpoint: POST /api/v1/orders
+Endpoint: POST /api/v1/customers/{customerId}/orders
 
 Response: HTTP 201 Created
 ```
-curl -X POST "http://localhost:8080/api/v1/orders" \
+curl -X POST "http://localhost:8080/api/v1/customers/1/orders" \
      -H "Content-Type: application/json" \
      -d '{
            "customerId": 1,
@@ -217,11 +217,11 @@ curl -X POST "http://localhost:8080/api/v1/orders" \
 ```
 
 ### Create Order (Admin)
-Endpoint: POST /api/v1/admin/orders
+Endpoint: POST /api/v1/customers/{customerId}/orders
 
 Response: HTTP 201 Created
 ```
-curl -X POST "http://localhost:8080/api/v1/admin/orders" \
+curl -X POST "http://localhost:8080/api/v1/customers/2/orders" \
      -H "Content-Type: application/json" \
      -d '{
            "customerId": 2,
@@ -234,24 +234,24 @@ curl -X POST "http://localhost:8080/api/v1/admin/orders" \
 ```
 
 ### Delete Order (Customer)
-Endpoint: DELETE /api/v1/orders/{orderId}
+Endpoint: DELETE /api/v1/customers/{customerId}/orders/{orderId}
 
 Response: HTTP 204 No Content (Successfully deleted)
 ```
-curl -X DELETE "http://localhost:8080/api/v1/orders/4" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+curl -X DELETE "http://localhost:8080/api/v1/customers/1/orders/4" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
 ```
 
 Response: HTTP 409 Conflict (orderStatus is not PENDING)
 ```
-curl -X DELETE "http://localhost:8080/api/v1/orders/4" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
+curl -X DELETE "http://localhost:8080/api/v1/customers/1/orders/4" -H "Authorization: Bearer $CUST_TOKEN1" | json_pp
 ```
 
 ### Delete Order (Admin)
-Endpoint: DELETE /api/v1/admin/orders/{orderId}
+Endpoint: DELETE /api/v1/customers/{customerId}/orders/{orderId}
 
 Response: HTTP 204 No Content (Successfully deleted)
 ```
-curl -X DELETE "http://localhost:8080/api/v1/admin/orders/9" -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
+curl -X DELETE "http://localhost:8080/api/v1/customers/1/orders/9" -H "Authorization: Bearer $ADMIN_TOKEN" | json_pp
 ```
 
 ### Match Order (Admin)
