@@ -1,4 +1,4 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.repository.specification;
 
 import org.brokage.stockorders.model.entity.Asset;
 import org.springframework.data.jpa.domain.Specification;

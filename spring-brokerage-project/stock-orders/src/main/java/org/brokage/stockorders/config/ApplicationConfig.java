@@ -1,7 +1,7 @@
 package org.brokage.stockorders.config;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.repository.UserCredentialRepository;
+import org.brokage.stockorders.repository.jpa.UserCredentialRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

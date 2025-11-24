@@ -20,7 +20,7 @@ public class OrderModelAssembler implements RepresentationModelAssembler<OrderDT
 
         // self link
         Link self = linkTo(methodOn(OrderController.class)
-                .getOrder(dto.id(), null)) // null will be injected for @AuthenticationPrincipal
+                .getOrder(null, dto.id(), null)) // null will be injected for @AuthenticationPrincipal
                 .withSelfRel();
         model.add(self);
 
@@ -32,7 +32,7 @@ public class OrderModelAssembler implements RepresentationModelAssembler<OrderDT
 
         // conditional cancel link
         if (OrderStatus.PENDING.equals(dto.status())) {
-            Link cancel = linkTo(methodOn(OrderController.class).cancelOrder(dto.id(), null)).withRel("cancel");
+            Link cancel = linkTo(methodOn(OrderController.class).cancelOrder(null, dto.id(), null)).withRel("cancel");
             model.add(cancel);
         }
 

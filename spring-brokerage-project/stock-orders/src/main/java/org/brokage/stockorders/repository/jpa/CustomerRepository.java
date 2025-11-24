@@ -1,9 +1,7 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.repository.jpa;
 
 import org.brokage.stockorders.model.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 }

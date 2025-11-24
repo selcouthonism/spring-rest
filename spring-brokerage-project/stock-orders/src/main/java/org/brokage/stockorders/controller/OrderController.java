@@ -23,9 +23,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/api/v1/customers/{customerId}/orders")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && #customerId == #principal.customerId)")
 public class OrderController {
 
     private final OrderService orderService;
@@ -33,44 +33,48 @@ public class OrderController {
 
     private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
+
+    @PostMapping
+    public ResponseEntity<EntityModel<OrderDTO>> createOrder(
+            @PathVariable Long customerId,
+            @Valid @RequestBody CreateOrderDTO request,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+
+        log.info("Create order with CreateOrderDTO {}", request);
+
+        OrderDTO savedOrder = orderService.createOrder(request);
+
+        return ResponseEntity
+                .created(linkTo(methodOn(OrderController.class).getOrder(customerId, savedOrder.id(), principal)).toUri())
+                .body(assembler.toModel(savedOrder));
+    }
+
+
     /**
      * Fetch a single order by ID.
      */
     @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && #customerId == #principal.customerId) && @orderAuthorization.canAccessCustomer(#id, #principal.customerId)")
     public ResponseEntity<EntityModel<OrderDTO>> getOrder(
+            @PathVariable Long customerId,
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails principle) {
+            @AuthenticationPrincipal CustomUserDetails principal) {
 
         log.info("Getting order with id {}", id);
 
-        OrderDTO order = orderService.getOrder(id, principle.getId());
+        OrderDTO order = orderService.getOrder(id, customerId);
         return ResponseEntity.ok(assembler.toModel(order));
-    }
-
-
-    @PostMapping
-    public ResponseEntity<EntityModel<OrderDTO>> createOrder(
-            @Valid @RequestBody CreateOrderDTO request,
-            @AuthenticationPrincipal CustomUserDetails principle) {
-
-        log.info("Create order with CreateOrderDTO {}", request);
-
-        OrderDTO savedOrder = orderService.createOrder(request, principle.getId());
-
-        return ResponseEntity
-                .created(linkTo(methodOn(OrderController.class).getOrder(savedOrder.id(), principle)).toUri())
-                .body(assembler.toModel(savedOrder));
     }
 
     @GetMapping
     public ResponseEntity<List<EntityModel<OrderDTO>>> listOrders(
-            @RequestParam(required = false) Long customerId,
+            @PathVariable Long customerId,
             @RequestParam(required = false) Instant from,
             @RequestParam(required = false) Instant to,
             @RequestParam(required = false) OrderStatus orderStatus,
             @AuthenticationPrincipal CustomUserDetails principal) {
 
-        List<OrderDTO> orders = orderService.listOrders(principal.getId(), from, to, orderStatus);
+        List<OrderDTO> orders = orderService.listOrders(customerId, from, to, orderStatus);
 
         List<EntityModel<OrderDTO>> models = orders.stream()
                 .map(assembler::toModel)
@@ -79,13 +83,14 @@ public class OrderController {
         return ResponseEntity.ok(models);
     }
 
-    @DeleteMapping("/{orderId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<EntityModel<OrderDTO>> cancelOrder(
-            @PathVariable Long orderId,
-            @AuthenticationPrincipal CustomUserDetails principle) {
+            @PathVariable Long customerId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails principal) {
 
-        log.info("Cancel order for order {} for customer {}", orderId, principle.getId());
-        OrderDTO canceledOrder = orderService.cancelOrder(orderId, principle.getId());
+        log.info("Cancel order for order {} for customer {}", id, customerId);
+        OrderDTO canceledOrder = orderService.cancelOrder(id, customerId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -5,9 +5,9 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.Role;
-import org.brokage.stockorders.repository.AssetRepository;
-import org.brokage.stockorders.repository.CustomerRepository;
-import org.brokage.stockorders.repository.OrderRepository;
+import org.brokage.stockorders.repository.jpa.AssetRepository;
+import org.brokage.stockorders.repository.jpa.CustomerRepository;
+import org.brokage.stockorders.repository.jpa.OrderRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.security.UserCredentials;
@@ -79,14 +79,14 @@ class OrderControllerIT {
             }
             """.formatted(customerId);
 
-        mockMvc.perform(post("/api/v1/orders")
+        mockMvc.perform(post("/api/v1/customers/{customerId}/orders", customerId)
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", containsString("/api/v1/orders/")))
+                .andExpect(header().string("Location", containsString("/api/v1/customers/"+customerId+"/orders/")))
                 .andExpect(jsonPath("$.assetName").value("AAPL"))
                 .andExpect(jsonPath("$.orderSide").value("SELL"))
                 .andExpect(jsonPath("$.size").value(10))
@@ -102,7 +102,7 @@ class OrderControllerIT {
                 "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200")
         ));
 
-        mockMvc.perform(get("/api/v1/orders/{id}", order.getId())
+        mockMvc.perform(get("/api/v1/customers/{customerId}/orders/{id}", customerId, order.getId())
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser)))
                 .andExpect(status().isOk())
@@ -118,7 +118,7 @@ class OrderControllerIT {
                 "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150")
         ));
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", order.getId())
+        mockMvc.perform(delete("/api/v1/customers/{customerId}/orders/{id}", customerId, order.getId())
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser))
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))

@@ -9,10 +9,9 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.model.enums.Role;
-import org.brokage.stockorders.repository.AssetRepository;
-import org.brokage.stockorders.repository.CustomerRepository;
-import org.brokage.stockorders.repository.OrderRepository;
+import org.brokage.stockorders.repository.jpa.AssetRepository;
+import org.brokage.stockorders.repository.jpa.CustomerRepository;
+import org.brokage.stockorders.repository.jpa.OrderRepository;
 import org.brokage.stockorders.service.AssetFinder;
 import org.brokage.stockorders.service.factory.OrderHandlerFactory;
 import org.brokage.stockorders.service.handler.*;
@@ -173,7 +172,7 @@ class OrderServiceImplTest {
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        OrderDTO result = orderService.cancelOrder(1L);
+        OrderDTO result = orderService.cancelOrder(1L, customer.getId());
 
         // asset restored
         assertThat(asset.getUsableSize()).isEqualTo(new BigDecimal(110));
@@ -195,7 +194,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L));
+        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L, customer.getId()));
     }
 
     @Test
@@ -207,7 +206,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.BUY)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L));
+        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L, customer.getId()));
     }
 
     @Test

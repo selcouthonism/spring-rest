@@ -4,6 +4,8 @@ import org.brokage.stockorders.model.entity.Customer;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
+import org.brokage.stockorders.repository.jpa.CustomerRepository;
+import org.brokage.stockorders.repository.jpa.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.repository.jpa;
 
 import jakarta.persistence.LockModeType;
 import org.brokage.stockorders.model.entity.Asset;

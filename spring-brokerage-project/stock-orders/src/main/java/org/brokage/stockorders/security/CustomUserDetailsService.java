@@ -1,7 +1,7 @@
 package org.brokage.stockorders.security;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.repository.UserCredentialRepository;
+import org.brokage.stockorders.repository.jpa.UserCredentialRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

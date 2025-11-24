@@ -6,7 +6,7 @@ import org.brokage.stockorders.model.entity.Asset;
 import org.brokage.stockorders.model.entity.Order;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.repository.AssetRepository;
+import org.brokage.stockorders.repository.jpa.AssetRepository;
 import org.brokage.stockorders.service.AssetFinder;
 import org.springframework.stereotype.Component;
 

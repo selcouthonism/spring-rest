@@ -1,6 +1,8 @@
 package org.brokage.stockorders.repository;
 
 import org.brokage.stockorders.model.entity.Customer;
+import org.brokage.stockorders.repository.jpa.CustomerRepository;
+import org.brokage.stockorders.repository.jpa.UserCredentialRepository;
 import org.brokage.stockorders.security.UserCredentials;
 import org.brokage.stockorders.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;

@@ -7,12 +7,12 @@ import org.brokage.stockorders.dto.OrderDTO;
 import org.brokage.stockorders.exceptions.OperationNotPermittedException;
 import org.brokage.stockorders.exceptions.UnallowedAccessException;
 import org.brokage.stockorders.mapper.OrderMapper;
-import org.brokage.stockorders.repository.OrderSpecifications;
+import org.brokage.stockorders.repository.specification.OrderSpecifications;
 import org.brokage.stockorders.service.OrderService;
 import org.brokage.stockorders.model.entity.Customer;
-import org.brokage.stockorders.repository.CustomerRepository;
+import org.brokage.stockorders.repository.jpa.CustomerRepository;
 import org.brokage.stockorders.model.entity.Order;
-import org.brokage.stockorders.repository.OrderRepository;
+import org.brokage.stockorders.repository.jpa.OrderRepository;
 import org.brokage.stockorders.model.enums.OrderSide;
 import org.brokage.stockorders.model.enums.OrderStatus;
 import org.brokage.stockorders.exceptions.ResourceNotFoundException;
@@ -43,12 +43,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDTO createOrder(CreateOrderDTO request) {
-        return createOrder(request, request.customerId());
-    }
+        final Long customerId = request.customerId();
 
-    @Override
-    @Transactional
-    public OrderDTO createOrder(CreateOrderDTO request, Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
@@ -61,15 +57,6 @@ public class OrderServiceImpl implements OrderService {
         Order newOrder = Order.create(customer, request.assetName(), orderSide, request.size(), request.price());
         Order savedOrder = orderRepository.save(newOrder);
         return orderMapper.toDto(savedOrder);
-    }
-
-    /**
-     * Find order with given orderId.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public OrderDTO getOrder(Long orderId) {
-        return getOrder(orderId, null);
     }
 
     /**
@@ -102,12 +89,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll(spec).stream()
                 .map(orderMapper::toDto)
                 .toList();
-    }
-
-    @Override
-    @Transactional
-    public OrderDTO cancelOrder(Long orderId) {
-        return cancelOrder(orderId, null);
     }
 
     @Override
@@ -164,6 +145,10 @@ public class OrderServiceImpl implements OrderService {
         if (!order.getCustomer().getId().equals(customerId)) {
             throw new UnallowedAccessException("Order customer not permitted");
         }
+    }
+
+    public boolean isOrderOwnedByCustomer(Long orderId, Long customerId) {
+        return orderRepository.existsByIdAndCustomerId(orderId, customerId);
     }
 
 }

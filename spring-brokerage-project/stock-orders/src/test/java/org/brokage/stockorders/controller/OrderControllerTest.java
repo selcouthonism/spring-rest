@@ -88,13 +88,13 @@ class OrderControllerTest {
     @Test
     //@WithMockUser(username = "testUser", roles = "CUSTOMER") //tells Spring to build a SecurityContext with a fake principal.
     void getOrder_shouldReturnOrder() throws Exception {
-        OrderDTO dto = new OrderDTO(1L, 1L, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
+        OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
-        when(orderService.getOrder(eq(1L), eq(mockUser.getId()))).thenReturn(dto);
+        when(orderService.getOrder(eq(1L), eq(mockUser.getCustomerId()))).thenReturn(dto);
         when(assembler.toModel(dto)).thenReturn(model);
 
-        mockMvc.perform(get("/api/v1/orders/{id}", 1L)
+        mockMvc.perform(get("/api/v1/customers/{customerId}/orders/{id}", customerId, 1L)
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.user(mockUser)) //or .with(user(mockUser))
                 )
@@ -110,11 +110,11 @@ class OrderControllerTest {
         OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
-        when(orderService.createOrder(any(CreateOrderDTO.class), eq(mockUser.getId())))
+        when(orderService.createOrder(any(CreateOrderDTO.class)))
                 .thenReturn(dto);
         when(assembler.toModel(dto)).thenReturn(model);
 
-        mockMvc.perform(post("/api/v1/orders")
+        mockMvc.perform(post("/api/v1/customers/{customerId}/orders", customerId)
                         .with(user(mockUser))
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -129,7 +129,7 @@ class OrderControllerTest {
                             }
                             """.formatted(customerId)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", containsString("/api/v1/orders/1")))
+                .andExpect(header().string("Location", containsString("/api/v1/customers/"+customerId+"/orders/1")))
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.customerId").value(customerId))
                 .andExpect(jsonPath("$.assetName").value("AAPL"))
@@ -144,12 +144,12 @@ class OrderControllerTest {
         OrderDTO dto1 = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         OrderDTO dto2 = new OrderDTO(2L, customerId, "ALK", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
-        when(orderService.listOrders(eq(mockUser.getId()), any(), any(), any()))
+        when(orderService.listOrders(eq(mockUser.getCustomerId()), any(), any(), any()))
                 .thenReturn(List.of(dto1, dto2));
         when(assembler.toModel(dto1)).thenReturn(EntityModel.of(dto1));
         when(assembler.toModel(dto2)).thenReturn(EntityModel.of(dto2));
 
-        mockMvc.perform(get("/api/v1/orders")
+        mockMvc.perform(get("/api/v1/customers/{customerId}/orders", customerId)
                         .with(user(mockUser))
                         .header("Authorization", "Bearer " + jwtToken)
                     )
@@ -163,10 +163,10 @@ class OrderControllerTest {
     void cancelOrder_shouldReturnNoContent() throws Exception {
         OrderDTO canceled = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
-        when(orderService.cancelOrder(eq(1L), eq(mockUser.getId())))
+        when(orderService.cancelOrder(eq(1L), eq(mockUser.getCustomerId())))
                 .thenReturn(canceled);
 
-        mockMvc.perform(delete("/api/v1/orders/{orderId}", 1L)
+        mockMvc.perform(delete("/api/v1/customers/{customerId}/orders/{orderId}", customerId, 1L)
                         .with(user(mockUser))
                         .header("Authorization", "Bearer " + jwtToken)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))

@@ -3,7 +3,7 @@ package org.brokage.stockorders.service;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.exceptions.ResourceNotFoundException;
 import org.brokage.stockorders.model.entity.Asset;
-import org.brokage.stockorders.repository.AssetRepository;
+import org.brokage.stockorders.repository.jpa.AssetRepository;
 import org.springframework.stereotype.Service;
 
 @Service

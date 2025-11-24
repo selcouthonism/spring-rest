@@ -1,4 +1,4 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.repository.jpa;
 
 import org.brokage.stockorders.security.UserCredentials;
 import org.springframework.data.jpa.repository.JpaRepository;
