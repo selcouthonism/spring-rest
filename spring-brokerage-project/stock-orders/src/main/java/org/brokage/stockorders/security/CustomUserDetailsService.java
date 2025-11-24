@@ -1,7 +1,8 @@
 package org.brokage.stockorders.security;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.repository.jpa.JpaUserCredentialRepository;
+import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
+import org.brokage.stockorders.adapter.out.persistence.jpa.JpaUserCredentialRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

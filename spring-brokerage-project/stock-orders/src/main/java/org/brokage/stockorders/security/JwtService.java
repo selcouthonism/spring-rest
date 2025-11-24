@@ -3,7 +3,7 @@ package org.brokage.stockorders.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.brokage.stockorders.config.JwtProperties;
+import org.brokage.stockorders.infrastructure.config.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;

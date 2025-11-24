@@ -1,10 +1,10 @@
 package org.brokage.stockorders.repository;
 
-import org.brokage.stockorders.model.entity.Customer;
-import org.brokage.stockorders.repository.jpa.JpaCustomerRepository;
-import org.brokage.stockorders.repository.jpa.JpaUserCredentialRepository;
-import org.brokage.stockorders.security.UserCredentials;
-import org.brokage.stockorders.model.enums.Role;
+import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
+import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
+import org.brokage.stockorders.adapter.out.persistence.jpa.JpaUserCredentialRepository;
+import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
+import org.brokage.stockorders.domain.model.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

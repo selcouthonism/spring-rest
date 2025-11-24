@@ -1,11 +1,11 @@
 package org.brokage.stockorders.repository;
 
-import org.brokage.stockorders.model.entity.Customer;
-import org.brokage.stockorders.model.entity.Order;
-import org.brokage.stockorders.model.enums.OrderSide;
-import org.brokage.stockorders.model.enums.OrderStatus;
-import org.brokage.stockorders.repository.jpa.JpaCustomerRepository;
-import org.brokage.stockorders.repository.jpa.JpaOrderRepository;
+import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
+import org.brokage.stockorders.adapter.out.persistence.entity.Order;
+import org.brokage.stockorders.domain.model.order.OrderSide;
+import org.brokage.stockorders.domain.model.order.OrderStatus;
+import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
+import org.brokage.stockorders.adapter.out.persistence.jpa.JpaOrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,8 +4,6 @@ import jakarta.validation.ValidationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.brokage.stockorders.exceptions.OperationNotPermittedException;
-import org.brokage.stockorders.model.enums.OrderSide;
-import org.brokage.stockorders.model.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

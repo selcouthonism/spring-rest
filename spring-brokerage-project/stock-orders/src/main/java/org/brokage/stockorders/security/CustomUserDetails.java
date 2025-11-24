@@ -1,5 +1,6 @@
 package org.brokage.stockorders.security;
 
+import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
