@@ -42,7 +42,7 @@ public class OrderController {
 
         log.info("Create order with CreateOrderDTO {}", request);
 
-        OrderDTO savedOrder = orderService.createOrder(request);
+        OrderDTO savedOrder = orderService.create(request);
 
         return ResponseEntity
                 .created(linkTo(methodOn(OrderController.class).getOrder(customerId, savedOrder.id(), principal)).toUri())
@@ -62,7 +62,7 @@ public class OrderController {
 
         log.info("Getting order with id {}", id);
 
-        OrderDTO order = orderService.getOrder(id, customerId);
+        OrderDTO order = orderService.find(id, customerId);
         return ResponseEntity.ok(assembler.toModel(order));
     }
 
@@ -74,7 +74,7 @@ public class OrderController {
             @RequestParam(required = false) OrderStatus orderStatus,
             @AuthenticationPrincipal CustomUserDetails principal) {
 
-        List<OrderDTO> orders = orderService.listOrders(customerId, from, to, orderStatus);
+        List<OrderDTO> orders = orderService.list(customerId, from, to, orderStatus);
 
         List<EntityModel<OrderDTO>> models = orders.stream()
                 .map(assembler::toModel)
@@ -90,7 +90,7 @@ public class OrderController {
             @AuthenticationPrincipal CustomUserDetails principal) {
 
         log.info("Cancel order for order {} for customer {}", id, customerId);
-        OrderDTO canceledOrder = orderService.cancelOrder(id, customerId);
+        OrderDTO canceledOrder = orderService.cancel(id, customerId);
         return ResponseEntity.noContent().build();
     }
 }

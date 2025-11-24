@@ -91,7 +91,7 @@ class OrderControllerTest {
         OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
-        when(orderService.getOrder(eq(1L), eq(mockUser.getCustomerId()))).thenReturn(dto);
+        when(orderService.find(eq(1L), eq(mockUser.getCustomerId()))).thenReturn(dto);
         when(assembler.toModel(dto)).thenReturn(model);
 
         mockMvc.perform(get("/api/v1/customers/{customerId}/orders/{id}", customerId, 1L)
@@ -110,7 +110,7 @@ class OrderControllerTest {
         OrderDTO dto = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         EntityModel<OrderDTO> model = EntityModel.of(dto);
 
-        when(orderService.createOrder(any(CreateOrderDTO.class)))
+        when(orderService.create(any(CreateOrderDTO.class)))
                 .thenReturn(dto);
         when(assembler.toModel(dto)).thenReturn(model);
 
@@ -144,7 +144,7 @@ class OrderControllerTest {
         OrderDTO dto1 = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.PENDING, Instant.now());
         OrderDTO dto2 = new OrderDTO(2L, customerId, "ALK", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
-        when(orderService.listOrders(eq(mockUser.getCustomerId()), any(), any(), any()))
+        when(orderService.list(eq(mockUser.getCustomerId()), any(), any(), any()))
                 .thenReturn(List.of(dto1, dto2));
         when(assembler.toModel(dto1)).thenReturn(EntityModel.of(dto1));
         when(assembler.toModel(dto2)).thenReturn(EntityModel.of(dto2));
@@ -163,7 +163,7 @@ class OrderControllerTest {
     void cancelOrder_shouldReturnNoContent() throws Exception {
         OrderDTO canceled = new OrderDTO(1L, customerId, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10L), OrderStatus.CANCELED, Instant.now());
 
-        when(orderService.cancelOrder(eq(1L), eq(mockUser.getCustomerId())))
+        when(orderService.cancel(eq(1L), eq(mockUser.getCustomerId())))
                 .thenReturn(canceled);
 
         mockMvc.perform(delete("/api/v1/customers/{customerId}/orders/{orderId}", customerId, 1L)

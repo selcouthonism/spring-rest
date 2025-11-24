@@ -70,7 +70,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void createOrder_sellOrder_shouldReserveAssetAndReturnDto() {
+    void createOrder_sell_shouldReserveAssetAndReturnDto() {
         CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(10), new BigDecimal(10));
 
         Order order = Order.create(customer, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
@@ -83,7 +83,7 @@ class OrderServiceImplTest {
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.SELL)).thenReturn(new CreateSellOrderHandler(assetRepository, assetFinder));
 
-        OrderDTO result = orderService.createOrder(request);
+        OrderDTO result = orderService.create(request);
 
         // Verify asset usable size reduced
         assertThat(asset.getUsableSize()).isEqualTo(new BigDecimal(90));
@@ -100,7 +100,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void createOrder_buyOrder_shouldReserveAssetAndReturnDto() {
+    void createOrder_buy_shouldReserveAssetAndReturnDto() {
         CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "BUY", new BigDecimal(10), new BigDecimal(10));
 
         Order order = Order.create(customer, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
@@ -113,7 +113,7 @@ class OrderServiceImplTest {
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.BUY)).thenReturn(new CreateBuyOrderHandler(assetRepository, assetFinder));
 
-        OrderDTO result = orderService.createOrder(request);
+        OrderDTO result = orderService.create(request);
 
         // Verify TRY asset usable size reduced (order.size * price)
         assertThat(tryAsset.getUsableSize()).isEqualTo(new BigDecimal("9900.00"));
@@ -130,7 +130,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void createOrder_sellOrder_insufficientAsset_shouldThrow() {
+    void createOrder_sell_insufficientAsset_shouldThrow() {
         CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "SELL", new BigDecimal(200), new BigDecimal(10));
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -138,11 +138,11 @@ class OrderServiceImplTest {
         when(assetFinder.findAssetForCustomerOrThrow(customer.getId(), "AAPL")).thenReturn(asset);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.SELL)).thenReturn(new CreateSellOrderHandler(assetRepository, assetFinder));
 
-        assertThrows(RuntimeException.class, () -> orderService.createOrder(request));
+        assertThrows(RuntimeException.class, () -> orderService.create(request));
     }
 
     @Test
-    void createOrder_buyOrder_insufficientAsset_shouldThrow() {
+    void createOrder_buy_insufficientAsset_shouldThrow() {
         CreateOrderDTO request = new CreateOrderDTO(1L, "AAPL", "BUY", new BigDecimal(2000), new BigDecimal(10));
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -150,11 +150,11 @@ class OrderServiceImplTest {
         when(assetFinder.findAssetForCustomerOrThrow(customer.getId(), "TRY")).thenReturn(tryAsset);
         when(orderHandlerFactory.getHandler(OrderAction.CREATE, OrderSide.BUY)).thenReturn(new CreateBuyOrderHandler(assetRepository, assetFinder));
 
-        assertThrows(RuntimeException.class, () -> orderService.createOrder(request));
+        assertThrows(RuntimeException.class, () -> orderService.create(request));
     }
 
     @Test
-    void cancelOrder_sellOrder_shouldRestoreAssetAndReturnDto() {
+    void cancelOrder_sell_shouldRestoreAssetAndReturnDto() {
         Order order = new Order();
         order.setId(1L);
         order.setCustomer(customer);
@@ -172,7 +172,7 @@ class OrderServiceImplTest {
         when(orderMapper.toDto(order)).thenReturn(dto);
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        OrderDTO result = orderService.cancelOrder(1L, customer.getId());
+        OrderDTO result = orderService.cancel(1L, customer.getId());
 
         // asset restored
         assertThat(asset.getUsableSize()).isEqualTo(new BigDecimal(110));
@@ -186,7 +186,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void cancelOrder_sell_alreadyCanceled_shouldThrow() {
+    void cancel_sell_alreadyCanceled_shouldThrow() {
         Order order = Order.create(customer, "AAPL", OrderSide.SELL, new BigDecimal(10), new BigDecimal(10));
         order.setId(1L);
         order.setStatus(OrderStatus.CANCELED);
@@ -194,11 +194,11 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.SELL)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L, customer.getId()));
+        assertThrows(OperationNotPermittedException.class, () -> orderService.cancel(1L, customer.getId()));
     }
 
     @Test
-    void cancelOrder_buy_alreadyCanceled_shouldThrow() {
+    void cancel_buy_alreadyCanceled_shouldThrow() {
         Order order = Order.create(customer, "AAPL", OrderSide.BUY, new BigDecimal(10), new BigDecimal(10));
         order.setId(1L);
         order.setStatus(OrderStatus.CANCELED);
@@ -206,7 +206,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderHandlerFactory.getHandler(OrderAction.CANCEL, OrderSide.BUY)).thenReturn(new CancelSellOrderHandler(assetFinder, assetRepository));
 
-        assertThrows(OperationNotPermittedException.class, () -> orderService.cancelOrder(1L, customer.getId()));
+        assertThrows(OperationNotPermittedException.class, () -> orderService.cancel(1L, customer.getId()));
     }
 
     @Test

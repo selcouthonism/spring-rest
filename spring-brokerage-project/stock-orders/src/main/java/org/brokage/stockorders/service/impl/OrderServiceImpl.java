@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderDTO createOrder(CreateOrderDTO request) {
+    public OrderDTO create(CreateOrderDTO request) {
         final Long customerId = request.customerId();
 
         Customer customer = customerRepository.findById(customerId)
@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(readOnly = true)
-    public OrderDTO getOrder(Long orderId, Long customerId) {
+    public OrderDTO find(Long orderId, Long customerId) {
         Order order = findOrderById(orderId);
         if(customerId != null) validateCustomerAccess(order, customerId);
         return orderMapper.toDto(order);
@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDTO> listOrders(Long customerId, Instant from, Instant to, OrderStatus orderStatus) {
+    public List<OrderDTO> list(Long customerId, Instant from, Instant to, OrderStatus orderStatus) {
 
         //allOf(...) → AND
         //anyOf(...) → OR
@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDTO cancelOrder(Long orderId, Long customerId) {
+    public OrderDTO cancel(Long orderId, Long customerId) {
         Order order = findOrderById(orderId);
         if(customerId != null) validateCustomerAccess(order, customerId);
 
