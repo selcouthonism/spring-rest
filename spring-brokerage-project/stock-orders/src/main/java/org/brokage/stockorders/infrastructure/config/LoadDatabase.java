@@ -1,8 +1,8 @@
 package org.brokage.stockorders.infrastructure.config;
 
-import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
-import org.brokage.stockorders.adapter.out.persistence.entity.Order;
+import org.brokage.stockorders.adapter.out.persistence.entity.AssetEntity;
+import org.brokage.stockorders.adapter.out.persistence.entity.CustomerEntity;
+import org.brokage.stockorders.adapter.out.persistence.entity.OrderEntity;
 import org.brokage.stockorders.domain.model.order.OrderSide;
 import org.brokage.stockorders.domain.model.order.OrderStatus;
 import org.brokage.stockorders.domain.model.Role;
@@ -32,10 +32,10 @@ public class LoadDatabase {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return args -> {
 
-            Customer customer1 = jpaCustomerRepository.save(Customer.of("customer1FN", "lastName1"));
-            Customer customer2 = jpaCustomerRepository.save(Customer.of("customer2FN", "lastName1"));
-            Customer customer3 = jpaCustomerRepository.save(Customer.of("customer3FN", "lastName1"));
-            Customer admin1 = jpaCustomerRepository.save(Customer.of("admin1FN", "lastName1"));
+            CustomerEntity customer1 = jpaCustomerRepository.save(CustomerEntity.of("customer1FN", "lastName1"));
+            CustomerEntity customer2 = jpaCustomerRepository.save(CustomerEntity.of("customer2FN", "lastName1"));
+            CustomerEntity customer3 = jpaCustomerRepository.save(CustomerEntity.of("customer3FN", "lastName1"));
+            CustomerEntity admin1 = jpaCustomerRepository.save(CustomerEntity.of("admin1FN", "lastName1"));
 
             credentialRepository.save(UserCredentials.of(customer1.getId(), "customer1", encoder.encode("password1"), Role.CUSTOMER, true));
             credentialRepository.save(UserCredentials.of(customer2.getId(), "customer2", encoder.encode("password2"), Role.CUSTOMER, true));
@@ -43,19 +43,19 @@ public class LoadDatabase {
             credentialRepository.save(UserCredentials.of(admin1.getId(), "admin1", encoder.encode("admin_password1"), Role.ADMIN, true));
 
             //Every customer has 10000 TRY as an asset
-            jpaAssetRepository.save(new Asset(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
-            jpaAssetRepository.save(new Asset(customer2, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
-            jpaAssetRepository.save(new Asset(customer3, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new AssetEntity(customer1, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new AssetEntity(customer2, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
+            jpaAssetRepository.save(new AssetEntity(customer3, "TRY", new BigDecimal(10000), new BigDecimal(10000)));
 
-            jpaAssetRepository.save(new Asset(customer1, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
-            jpaAssetRepository.save(new Asset(customer2, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
-            jpaAssetRepository.save(new Asset(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new AssetEntity(customer1, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new AssetEntity(customer2, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
+            jpaAssetRepository.save(new AssetEntity(customer3, "AAPL", new BigDecimal(5000), new BigDecimal(5000)));
 
 
-            Order order1 = Order.create(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
+            OrderEntity order1 = OrderEntity.create(customer1, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
             order1.setStatus(OrderStatus.CANCELED);
 
-            Order order2 = Order.create(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
+            OrderEntity order2 = OrderEntity.create(customer2, "TRY", OrderSide.SELL, new BigDecimal(100), new BigDecimal("1.0"));
             order2.setStatus(OrderStatus.CANCELED);
 
             jpaOrderRepository.saveAll(List.of(order1, order2));

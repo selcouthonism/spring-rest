@@ -3,7 +3,7 @@ package org.brokage.stockorders.adapter.in.web.controller;
 import org.brokage.stockorders.adapter.in.web.assembler.OrderModelAssembler;
 import org.brokage.stockorders.adapter.in.web.dto.CreateOrderDTO;
 import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
+import org.brokage.stockorders.domain.model.customer.Customer;
 import org.brokage.stockorders.domain.model.order.OrderSide;
 import org.brokage.stockorders.domain.model.order.OrderStatus;
 import org.brokage.stockorders.domain.model.Role;
@@ -57,7 +57,9 @@ class OrderControllerTest {
 
     @BeforeEach
     void setupUser() {
-        Customer customer = Customer.of("testUser", "lastName");
+        Customer customer = new Customer();
+        customer.setFirstName("testUser");
+        customer.setLastName("lastName");
         customer.setId(customerId);
 
         UserCredentials credential = UserCredentials.of(customerId, "testUser", "password", Role.CUSTOMER, true);

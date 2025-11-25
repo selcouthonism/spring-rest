@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
+import org.brokage.stockorders.domain.exception.NotEnoughBalanceException;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Asset {
+public class AssetEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Asset {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private CustomerEntity customer;
 
     @Column(name = "asset_name", nullable = false, length = 50)
     private String assetName;
@@ -47,7 +48,7 @@ public class Asset {
     @Version
     private long version; // optimistic locking ensures concurrency control (important for SELL reservations).
 
-    public Asset(Customer customer, String assetName, BigDecimal size, BigDecimal usableSize) {
+    public AssetEntity(CustomerEntity customer, String assetName, BigDecimal size, BigDecimal usableSize) {
         this.customer = customer;
         this.assetName = assetName;
         this.size = size;
@@ -60,7 +61,4 @@ public class Asset {
         return usableSize == null || size == null || usableSize.compareTo(size) <= 0;
     }
 
-    public void releaseFunds(BigDecimal amount){
-        setUsableSize(getUsableSize().add(amount));
-    }
 }

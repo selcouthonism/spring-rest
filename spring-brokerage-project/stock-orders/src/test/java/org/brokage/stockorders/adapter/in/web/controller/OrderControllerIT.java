@@ -1,13 +1,13 @@
 package org.brokage.stockorders.adapter.in.web.controller;
 
-import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
-import org.brokage.stockorders.adapter.out.persistence.entity.Order;
+import org.brokage.stockorders.application.port.out.AssetRepository;
+import org.brokage.stockorders.application.port.out.CustomerRepository;
+import org.brokage.stockorders.application.port.out.OrderRepository;
+import org.brokage.stockorders.domain.model.asset.Asset;
+import org.brokage.stockorders.domain.model.customer.Customer;
+import org.brokage.stockorders.domain.model.order.Order;
 import org.brokage.stockorders.domain.model.order.OrderSide;
 import org.brokage.stockorders.domain.model.Role;
-import org.brokage.stockorders.adapter.out.persistence.jpa.JpaAssetRepository;
-import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
-import org.brokage.stockorders.adapter.out.persistence.jpa.JpaOrderRepository;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
@@ -39,13 +39,13 @@ class OrderControllerIT {
     private JwtService jwtService;
 
     @Autowired
-    private JpaOrderRepository jpaOrderRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private JpaCustomerRepository jpaCustomerRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
-    private JpaAssetRepository jpaAssetRepository;
+    private AssetRepository assetRepository;
 
     private CustomUserDetails mockUser;
     private Long customerId;
@@ -54,14 +54,16 @@ class OrderControllerIT {
     @BeforeEach
     void setUp() {
         // ensure test DB has a customer
-        Customer customer = Customer.of("testUser", "lastName");
-        jpaCustomerRepository.save(customer);
+        Customer customer = new Customer();
+        customer.setFirstName("testUser");
+        customer.setLastName("lastName");
+        customer = customerRepository.save(customer);
         customerId = customer.getId();
 
         UserCredentials credential = UserCredentials.of(customer.getId(), "username", "password", Role.CUSTOMER, true);
         mockUser = new CustomUserDetails(credential);
 
-        jpaAssetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
+        assetRepository.save(new Asset(customer, "AAPL", new BigDecimal(1000), new BigDecimal(1000)));
 
         // 🔑 generate token
         jwtToken = jwtService.generateToken(mockUser);
@@ -98,7 +100,7 @@ class OrderControllerIT {
     @Test
     void getOrder_shouldReturnOrder() throws Exception {
         // persist an order directly
-        Order order = jpaOrderRepository.save(Order.create(jpaCustomerRepository.findById(customerId).get(),
+        Order order = orderRepository.save(new Order(customerRepository.findByIdOrThrow(customerId),
                 "AAPL", OrderSide.SELL, new BigDecimal(5), new BigDecimal("200")
         ));
 
@@ -114,7 +116,7 @@ class OrderControllerIT {
 
     @Test
     void cancelOrder_shouldReturnNoContent() throws Exception {
-        Order order = jpaOrderRepository.save(Order.create(jpaCustomerRepository.findById(customerId).get(),
+        Order order = orderRepository.save(new Order(customerRepository.findByIdOrThrow(customerId),
                 "AAPL", OrderSide.SELL, new BigDecimal(3), new BigDecimal("150")
         ));
 

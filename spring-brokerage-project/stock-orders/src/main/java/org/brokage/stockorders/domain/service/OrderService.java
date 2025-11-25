@@ -16,6 +16,5 @@ public interface OrderService {
     List<OrderDTO> list(Long customerId, Instant from, Instant to, OrderStatus orderStatus);
 
     OrderDTO matchOrder(Long orderId); //Only admin
-    boolean isOrderOwnedByCustomer(Long customerId, Long userId);
 }
 

@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.brokage.stockorders.application.exception.OperationNotPermittedException;
+import org.brokage.stockorders.domain.model.customer.Customer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,7 +15,7 @@ import java.time.Instant;
 public class Order {
 
     private Long id;
-    private Long customerId;
+    private Customer customer;
     private String assetName;
     private OrderSide orderSide;
     private BigDecimal size;
@@ -23,22 +24,16 @@ public class Order {
     private Instant createDate;
     private Instant updateDate;
 
-    public Order(Long customerId, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price) {
-        this.customerId = customerId;
+    public Order() {}
+    public Order(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price) {
+        this.customer = customer;
         this.assetName = assetName;
         this.orderSide = orderSide;
         this.size = size;
         this.price = price;
-    }
-
-    public BigDecimal getTotalCost(){
-        BigDecimal requiredAmount = getSize().multiply(getPrice()).setScale(2, RoundingMode.HALF_UP);
-
-        if (requiredAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalStateException("Order amount is not positive");
-        }
-
-        return requiredAmount;
+        this.status = OrderStatus.PENDING;
+        this.createDate = Instant.now();
+        this.updateDate = Instant.now();
     }
 
     public void validate(){
@@ -61,5 +56,30 @@ public class Order {
         if (price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Invalid order price.");
         }
+    }
+
+    //Business logic
+    public BigDecimal getTotalCost(){
+        BigDecimal requiredAmount = getSize().multiply(getPrice()).setScale(2, RoundingMode.HALF_UP);
+
+        if (requiredAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Order amount is not positive");
+        }
+
+        return requiredAmount;
+    }
+
+    public void cancel() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new OperationNotPermittedException("Cannot cancel a non-pending order. Status is:" + status);
+        }
+        this.status = OrderStatus.CANCELED;
+    }
+
+    public void match() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new OperationNotPermittedException("Cannot match a non-pending order. Status is:" + status);
+        }
+        this.status = OrderStatus.MATCHED;
     }
 }

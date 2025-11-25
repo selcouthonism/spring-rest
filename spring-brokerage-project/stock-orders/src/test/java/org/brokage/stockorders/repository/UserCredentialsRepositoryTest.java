@@ -1,6 +1,6 @@
 package org.brokage.stockorders.repository;
 
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
+import org.brokage.stockorders.adapter.out.persistence.entity.CustomerEntity;
 import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
 import org.brokage.stockorders.adapter.out.persistence.jpa.JpaUserCredentialRepository;
 import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
@@ -22,11 +22,11 @@ public class UserCredentialsRepositoryTest {
     @Autowired
     private JpaCustomerRepository jpaCustomerRepository;
 
-    private Customer customer;
+    private CustomerEntity customer;
 
     @BeforeEach
     void setUp() {
-        customer = jpaCustomerRepository.save(Customer.of("testUser", "lastName"));
+        customer = jpaCustomerRepository.save(CustomerEntity.of("testUser", "lastName"));
     }
 
     @Test

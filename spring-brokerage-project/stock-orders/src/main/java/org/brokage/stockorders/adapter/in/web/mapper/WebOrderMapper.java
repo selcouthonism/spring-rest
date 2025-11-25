@@ -2,12 +2,15 @@ package org.brokage.stockorders.adapter.in.web.mapper;
 
 import org.brokage.stockorders.adapter.in.web.dto.CreateOrderDTO;
 import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;
+import org.brokage.stockorders.domain.model.customer.Customer;
 import org.brokage.stockorders.domain.model.order.Order;
+import org.springframework.stereotype.Component;
 
-public class WebUserOrderMapper {
+@Component
+public class WebOrderMapper {
     public Order toDomain(CreateOrderDTO dto) {
         return new Order(
-                dto.customerId(),
+                new Customer(dto.customerId()),
                 dto.assetName(),
                 dto.orderSide(),
                 dto.size(),
@@ -18,7 +21,7 @@ public class WebUserOrderMapper {
     public OrderDTO toDto(Order domain) {
         return new OrderDTO(
                 domain.getId(),
-                domain.getCustomerId(),
+                domain.getCustomer().getId(),
                 domain.getAssetName(),
                 domain.getOrderSide(),
                 domain.getSize(),

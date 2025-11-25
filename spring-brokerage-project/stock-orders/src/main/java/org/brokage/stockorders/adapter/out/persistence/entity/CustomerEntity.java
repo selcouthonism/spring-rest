@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer {
+public class CustomerEntity {
 
     @Id
     @GeneratedValue
@@ -39,20 +39,22 @@ public class Customer {
 
 
     // Relationships
+    /*
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Order> orders;
+    private Set<OrderEntity> orders;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Asset> assets;
+     */
 
 
 
-    private Customer(String firstName, String lastName) {
+    private CustomerEntity(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public static Customer of(String firstName, String lastName) {
-        return new Customer(firstName, lastName);
+    public static CustomerEntity of(String firstName, String lastName) {
+        return new CustomerEntity(firstName, lastName);
     }
 }

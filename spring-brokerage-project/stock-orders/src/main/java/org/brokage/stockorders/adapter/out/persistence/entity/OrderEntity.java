@@ -22,7 +22,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Order {
+public class OrderEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private CustomerEntity customer;
 
     @Column(name = "asset_name", nullable = false, length = 50)
     private String assetName;
@@ -57,17 +57,17 @@ public class Order {
     @Column(name = "update_date")
     private Instant updateDate;
 
-    private Order(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price) {
+    private OrderEntity(CustomerEntity customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price) {
         this.customer = customer;
         this.assetName = assetName;
         this.orderSide = orderSide;
         this.size = size;
         this.price = price;
-        this.status = status;
+        this.status = OrderStatus.PENDING;
     }
 
-    public static Order create(Customer customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price){
-        Order order = new Order();
+    public static OrderEntity create(CustomerEntity customer, String assetName, OrderSide orderSide, BigDecimal size, BigDecimal price){
+        OrderEntity order = new OrderEntity();
         order.setCustomer(customer);
         order.setAssetName(assetName);
         order.setOrderSide(orderSide);

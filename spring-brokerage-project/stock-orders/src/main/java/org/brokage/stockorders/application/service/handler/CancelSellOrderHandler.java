@@ -1,11 +1,10 @@
 package org.brokage.stockorders.application.service.handler;
 
 import lombok.RequiredArgsConstructor;
-import org.brokage.stockorders.application.exception.OperationNotPermittedException;
-import org.brokage.stockorders.adapter.out.persistence.entity.Asset;
-import org.brokage.stockorders.adapter.out.persistence.entity.Order;
+import org.brokage.stockorders.application.port.out.OrderRepository;
+import org.brokage.stockorders.domain.model.asset.Asset;
+import org.brokage.stockorders.domain.model.order.Order;
 import org.brokage.stockorders.domain.model.order.OrderSide;
-import org.brokage.stockorders.domain.model.order.OrderStatus;
 import org.brokage.stockorders.application.port.out.AssetRepository;
 import org.springframework.stereotype.Component;
 
@@ -14,18 +13,19 @@ import org.springframework.stereotype.Component;
 public class CancelSellOrderHandler implements OrderActionHandler<Order> {
 
     private final AssetRepository assetRepository;
+    private final OrderRepository orderRepository;
 
     @Override
-    public void handle(Order order) {
-
-        if (order.getStatus() != OrderStatus.PENDING) {
-            throw new OperationNotPermittedException("Cannot cancel order. Status is: " + order.getStatus());
-        }
+    public Order handle(Order order) {
+        order.cancel();
 
         // Restore usable shares
         Asset asset = assetRepository.lockAssetForCustomer(order.getAssetName(), order.getCustomer().getId());
+        asset.releaseFunds(order.getSize());
 
-        asset.setUsableSize(asset.getUsableSize().add(order.getSize()));
+        assetRepository.save(asset);
+
+        return orderRepository.save(order);
     }
 
     @Override

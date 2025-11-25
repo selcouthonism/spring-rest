@@ -1,7 +1,7 @@
 package org.brokage.stockorders.repository;
 
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
-import org.brokage.stockorders.adapter.out.persistence.entity.Order;
+import org.brokage.stockorders.adapter.out.persistence.entity.CustomerEntity;
+import org.brokage.stockorders.adapter.out.persistence.entity.OrderEntity;
 import org.brokage.stockorders.domain.model.order.OrderSide;
 import org.brokage.stockorders.domain.model.order.OrderStatus;
 import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
@@ -26,16 +26,16 @@ class JpaOrderRepositoryTest {
     @Autowired
     private JpaCustomerRepository jpaCustomerRepository;
 
-    private Customer customer;
+    private CustomerEntity customer;
 
     @BeforeEach
     void setUp() {
-        customer = jpaCustomerRepository.save(Customer.of("testUser", "lastname"));
+        customer = jpaCustomerRepository.save(CustomerEntity.of("testUser", "lastname"));
     }
 
     @Test
     void saveAndFindOrder() {
-        Order order = new Order();
+        OrderEntity order = new OrderEntity();
         order.setCustomer(customer);
         order.setAssetName("AAPL");
         order.setOrderSide(OrderSide.BUY);
@@ -44,9 +44,9 @@ class JpaOrderRepositoryTest {
         order.setStatus(OrderStatus.PENDING);
         order.setCreateDate(Instant.now());
 
-        Order saved = jpaOrderRepository.save(order);
+        OrderEntity saved = jpaOrderRepository.save(order);
 
-        Order found = jpaOrderRepository.findById(saved.getId()).orElseThrow();
+        OrderEntity found = jpaOrderRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(found.getAssetName()).isEqualTo("AAPL");
         assertThat(found.getStatus()).isEqualTo(OrderStatus.PENDING);
@@ -55,7 +55,7 @@ class JpaOrderRepositoryTest {
     @Test
     void findAllBySpecification_shouldReturnFilteredOrders() {
         // save multiple orders
-        Order order1 = new Order();
+        OrderEntity order1 = new OrderEntity();
         order1.setCustomer(customer);
         order1.setAssetName("AAPL");
         order1.setOrderSide(OrderSide.BUY);
@@ -65,7 +65,7 @@ class JpaOrderRepositoryTest {
         order1.setCreateDate(Instant.now());
         jpaOrderRepository.save(order1);
 
-        Order order2 = new Order();
+        OrderEntity order2 = new OrderEntity();
         order2.setCustomer(customer);
         order2.setAssetName("TSLA");
         order2.setOrderSide(OrderSide.SELL);
@@ -76,10 +76,10 @@ class JpaOrderRepositoryTest {
         jpaOrderRepository.save(order2);
 
         // Example: use JpaSpecificationExecutor to filter by status
-        var spec = (org.springframework.data.jpa.domain.Specification<Order>) (root, query, cb) ->
+        var spec = (org.springframework.data.jpa.domain.Specification<OrderEntity>) (root, query, cb) ->
                 cb.equal(root.get("status"), OrderStatus.PENDING);
 
-        List<Order> filtered = jpaOrderRepository.findAll(spec);
+        List<OrderEntity> filtered = jpaOrderRepository.findAll(spec);
 
         assertThat(filtered).hasSize(1);
         assertThat(filtered.get(0).getAssetName()).isEqualTo("AAPL");

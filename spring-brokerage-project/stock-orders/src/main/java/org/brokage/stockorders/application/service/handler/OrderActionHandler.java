@@ -8,7 +8,7 @@ import org.brokage.stockorders.domain.model.order.OrderSide;
  */
 public interface OrderActionHandler<T> {
 
-    void handle(T context);
+    T handle(T context);
 
     OrderAction getAction();
 

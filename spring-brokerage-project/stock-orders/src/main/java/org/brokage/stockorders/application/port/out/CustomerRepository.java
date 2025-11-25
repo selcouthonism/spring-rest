@@ -1,6 +1,7 @@
 package org.brokage.stockorders.application.port.out;
 
-import org.brokage.stockorders.adapter.out.persistence.entity.Customer;
+
+import org.brokage.stockorders.domain.model.customer.Customer;
 
 public interface CustomerRepository {
 
