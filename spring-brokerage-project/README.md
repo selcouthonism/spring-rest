@@ -47,8 +47,9 @@ src/main/java/org/brokage/stockorders/ <br>
 │               └── specification/
 │               └── mapper/     # Domain <-> Entitiy 
 │
-└── infrastructure/
-    └── config/
+│── infrastructure/
+│   └── config/
+└── security/
 
 
 ### Test Structure:

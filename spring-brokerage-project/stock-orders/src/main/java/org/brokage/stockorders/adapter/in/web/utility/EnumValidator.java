@@ -1,4 +1,4 @@
-package org.brokage.stockorders.utility;
+package org.brokage.stockorders.adapter.in.web.utility;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
