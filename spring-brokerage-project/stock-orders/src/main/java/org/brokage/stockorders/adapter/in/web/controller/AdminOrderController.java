@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.adapter.in.web.assembler.OrderModelAssembler;
 import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;
 import org.brokage.stockorders.security.CustomUserDetails;
-import org.brokage.stockorders.domain.service.OrderService;
+import org.brokage.stockorders.application.port.in.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.EntityModel;

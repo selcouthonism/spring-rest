@@ -10,7 +10,7 @@ import org.brokage.stockorders.domain.model.Role;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.brokage.stockorders.security.JwtService;
 import org.brokage.stockorders.adapter.out.persistence.entity.UserCredentials;
-import org.brokage.stockorders.domain.service.OrderService;
+import org.brokage.stockorders.application.port.in.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

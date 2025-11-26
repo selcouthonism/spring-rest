@@ -6,7 +6,7 @@ import org.brokage.stockorders.adapter.in.web.assembler.OrderModelAssembler;
 import org.brokage.stockorders.adapter.in.web.dto.CreateOrderDTO;
 import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;
 import org.brokage.stockorders.domain.model.order.OrderStatus;
-import org.brokage.stockorders.domain.service.OrderService;
+import org.brokage.stockorders.application.port.in.OrderService;
 import org.brokage.stockorders.security.CustomUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

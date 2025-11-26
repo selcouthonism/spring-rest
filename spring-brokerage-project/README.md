@@ -5,24 +5,61 @@ Project Name: Stock Orders Management System
 This project implements a backend system for a brokerage platform, allowing customers to manage stock orders. It provides endpoints for creating, listing, retrieving, and canceling orders while ensuring proper security, business validation, and concurrency control.
 
 ### Project Structure
-src/main/java <br>
- ├─ assembler       : Converts between domain models and DTOs for cleaner API design. <br>
- ├─ controller      : REST controllers (OrderController, etc.) <br>
- ├─ dto             : Data transfer objects (OrderDTO, CreateOrderDTO, AssetDTO) <br>
- ├─ exceptions      : Implements centralized exception management with custom error responses. <br>
- ├─ mapper          : MapStruct mapper for entity<->DTO conversion <br>
- ├─ model           : JPA entities (Order, Customer, Asset) <br>
- ├─ repository      : Spring Data JPA repositories <br>
- ├─ service         : Service layer (OrderService & OrderServiceImpl) <br>
- └─ security        : Security classes (CustomUserDetails) <br>
- └─ utility         : EnumValidator
+src/main/java/org/brokage/stockorders/ <br>
+├── domain/                     # The "Inside" (Pure Business)
+│   ├── model/                  # Entities, Value Objects, Aggregates
+│   │   ├── Order.java
+│   │   ├── Asset.java
+│   │   └── Customer.java
+│   ├── service/                # Domain Services (logic across multiple entities)
+│   └── exception/              # Business Rule Violations
+│
+├── application/                # The "Orchestration" & "Ports"
+│   ├── port/
+│   │   ├── in/                 # Driving Ports (Use Cases)
+│   │   │   └── OrderService.java
+│   │   │   └── AssetService.java
+│   │   └── out/                # Driven Ports (Interfaces for Adapters)
+│   │       └── AssetRepository.java (Repository Interface)
+│   │       └── CustomerRepository.java
+│   │       └── OrderRepository.java
+│   ├── service/                # Implementation of Inbound Ports
+│   │   └── OrderServiceImpl.java   # Implements OrderService
+│   │   └── AssetServiceImpl.java
+│   └── exception/                # Flow/Orchestration Errors
+│
+├── adapter/                    # The "Outside" (Adapters)
+│   └── in/                     # Driving Adapters (Entry Points)
+│       ├── web/
+│       │   └── assembler/
+│       │   └── controller/     # REST adapter
+│       │   └── dto/
+│       │   └── exception/      # Technical Failures (SqlException, NetworkTimeout)
+│       │   └── mapper/         # DTO <-> Domain
+│       └── out/                # Driven Adapters (External Dependencies)
+│           └── persistence     # Database implementations
+│               └── repository
+│                   └── OrderRepositoryImpl.java   # Implements OrderRepository.java
+│               └── jpa/        # DB adapter
+│                   └── JpaOrderRepository.java
+│               └── entity/     # JPA/SQL Entities (NOT Domain Entities)
+│               └── specification/
+│               └── mapper/     # Domain <-> Entitiy 
+│
+└── infrastructure/
+    └── config/
 
 
 ### Test Structure:
-src/test/java <br>
- ├─ controller      : Integration tests for controllers (OrderControllerIT) <br>
- ├─ service         : Unit tests for service layer (OrderServiceImplTest) <br>
- └─ repository      : Repository tests using @DataJpaTest
+src/main/java/org/brokage/stockorders/ <br>
+├── adapter/
+│   └── in/
+│       └── web/
+│           └── controller/     # Unit and Integration tests for controllers
+│   └── out/
+│       └── perisitence/        # Repository tests using @DataJpaTest
+└── application/
+    └── service/                # Unit tests for service layer
 
 ## Build and Run
 

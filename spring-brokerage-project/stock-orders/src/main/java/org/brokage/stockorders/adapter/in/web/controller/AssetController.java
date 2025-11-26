@@ -3,7 +3,7 @@ package org.brokage.stockorders.adapter.in.web.controller;
 import lombok.RequiredArgsConstructor;
 import org.brokage.stockorders.adapter.in.web.dto.AssetDTO;
 import org.brokage.stockorders.security.CustomUserDetails;
-import org.brokage.stockorders.domain.service.AssetService;
+import org.brokage.stockorders.application.port.in.AssetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.EntityModel;

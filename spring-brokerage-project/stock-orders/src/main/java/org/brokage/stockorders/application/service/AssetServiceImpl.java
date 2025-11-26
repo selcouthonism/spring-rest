@@ -5,7 +5,7 @@ import org.brokage.stockorders.adapter.in.web.dto.AssetDTO;
 import org.brokage.stockorders.adapter.in.web.mapper.WebAssetMapper;
 import org.brokage.stockorders.application.port.out.AssetRepository;
 import org.brokage.stockorders.domain.model.asset.Asset;
-import org.brokage.stockorders.domain.service.AssetService;
+import org.brokage.stockorders.application.port.in.AssetService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

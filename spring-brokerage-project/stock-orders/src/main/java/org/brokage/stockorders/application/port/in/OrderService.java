@@ -1,4 +1,4 @@
-package org.brokage.stockorders.domain.service;
+package org.brokage.stockorders.application.port.in;
 
 import org.brokage.stockorders.adapter.in.web.dto.CreateOrderDTO;
 import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;

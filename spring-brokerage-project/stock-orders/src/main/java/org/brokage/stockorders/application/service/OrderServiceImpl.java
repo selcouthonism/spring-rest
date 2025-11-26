@@ -6,7 +6,7 @@ import org.brokage.stockorders.adapter.in.web.dto.OrderDTO;
 import org.brokage.stockorders.adapter.in.web.mapper.WebOrderMapper;
 import org.brokage.stockorders.application.port.out.OrderRepository;
 import org.brokage.stockorders.domain.model.order.Order;
-import org.brokage.stockorders.domain.service.OrderService;
+import org.brokage.stockorders.application.port.in.OrderService;
 import org.brokage.stockorders.domain.model.order.OrderStatus;
 import org.brokage.stockorders.application.service.factory.OrderHandlerFactory;
 import org.brokage.stockorders.application.service.handler.OrderAction;

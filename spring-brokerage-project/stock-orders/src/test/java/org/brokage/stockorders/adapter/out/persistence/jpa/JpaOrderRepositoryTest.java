@@ -1,4 +1,4 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.adapter.out.persistence.jpa;
 
 import org.brokage.stockorders.adapter.out.persistence.entity.CustomerEntity;
 import org.brokage.stockorders.adapter.out.persistence.entity.OrderEntity;

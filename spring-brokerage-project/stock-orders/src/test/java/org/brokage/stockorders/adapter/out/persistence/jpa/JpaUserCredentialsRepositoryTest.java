@@ -1,4 +1,4 @@
-package org.brokage.stockorders.repository;
+package org.brokage.stockorders.adapter.out.persistence.jpa;
 
 import org.brokage.stockorders.adapter.out.persistence.entity.CustomerEntity;
 import org.brokage.stockorders.adapter.out.persistence.jpa.JpaCustomerRepository;
@@ -14,7 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class UserCredentialsRepositoryTest {
+public class JpaUserCredentialsRepositoryTest {
 
     @Autowired
     private JpaUserCredentialRepository credentialRepository;
