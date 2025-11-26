@@ -5,6 +5,7 @@ Project Name: Stock Orders Management System
 This project implements a backend system for a brokerage platform, allowing customers to manage stock orders. It provides endpoints for creating, listing, retrieving, and canceling orders while ensuring proper security, business validation, and concurrency control.
 
 ### Project Structure
+```
 src/main/java/org/brokage/stockorders/ <br>
 ├── domain/                     # The "Inside" (Pure Business)
 │   ├── model/                  # Entities, Value Objects, Aggregates
@@ -60,6 +61,7 @@ src/main/java/org/brokage/stockorders/ <br>
 │       └── perisitence/        # Repository tests using @DataJpaTest
 └── application/
     └── service/                # Unit tests for service layer
+```
 
 ## Build and Run
 
